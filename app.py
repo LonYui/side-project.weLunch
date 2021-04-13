@@ -37,9 +37,12 @@ def putCourse():
     return json.loads(newC.to_json())
 @app.route("/course",methods=['POST'])
 def postCourse():
-    course  = Course.objects().get(id = request.form["_id"])
+    course = Course.objects().get(id = request.form["_id"])
     # TODO how to handle muiltiple column?
-    course.update(set__NAME=request.form["NAME"])
+    data = request.form
+    for key, value in data.items():
+        if(key[0]!="_"):course[key]=value
+    course.save()
     return json.loads(course.to_json())
 @app.route("/course",methods=['DELETE'])
 def delCourse():
