@@ -1,6 +1,7 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, jsonify
 from flask_mongoengine import MongoEngine
 from flask import request
+import json
 
 app = Flask(__name__)
 app.config['MONGODB_SETTINGS'] = {
@@ -22,29 +23,28 @@ def show_user_profile(username):
 
 @app.route("/course",methods=['GET'])
 def getCourse():
-    json_data = Course.objects().to_json()
-    return json_data
+    data = Course.objects()
+    return jsonify([json.loads(ele.to_json()) for ele in data])
 
 @app.route("/course/<name>",methods=['GET'])
 def getCourseByName(name):
-    json_data = Course.objects(NAME = name).to_json()
-    return json_data
+    data = Course.objects(NAME = name)
+    return jsonify([json.loads(ele.to_json()) for ele in data])
 @app.route("/course",methods=['PUT'])
 def putCourse():
     newC = Course(NAME = request.form["NAME"])
     newC.save()
-    return newC.to_json()
+    return json.loads(newC.to_json())
 @app.route("/course",methods=['POST'])
 def postCourse():
-    courses  = Course.objects(id = request.form["id"])
-    for course in courses:
-        course.update(set__NAME=request.form["NAME"])
-
-    return courses.to_json()
+    course  = Course.objects().get(id = request.form["_id"])
+    # TODO how to handle muiltiple column?
+    course.update(set__NAME=request.form["NAME"])
+    return json.loads(course.to_json())
 @app.route("/course",methods=['DELETE'])
 def delCourse():
-    courses = Course.objects(id = request.form["id"]).delete()
-    return courses.to_json()
+    Course.objects().get(id = request.form["_id"]).delete()
+    return "del success"
 
 if __name__ == '__main__':
     app.run()
