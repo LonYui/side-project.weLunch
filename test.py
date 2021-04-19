@@ -73,6 +73,19 @@ class TestFunction(unittest.TestCase):
         self.assertEqual(t_memeber.status, 5)
         self.assertEqual(t_memeber.nickName,nickName)
         t_memeber.delete()
+    def test_名字偵測不到標記(self):
+        cluster.Male(userId=inspect.currentframe().f_code.co_name,status=4).save()
+        nickName = "沒有標記名字"
+        dict = {}
+        self.messageRequestDict(dict,nickName, inspect.currentframe().f_code.co_name)
+        response = self.client.post('/', json=dict)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data.decode("utf-8"), "偵測不到<>，請再試一次")
+        t_memeber = cluster.getUser(inspect.currentframe().f_code.co_name)
+        self.assertEqual(t_memeber.status, 4)
+        self.assertIsNone(t_memeber.nickName)
+        t_memeber.delete()
+
     def test_生日(self):
         cluster.Male(userId=inspect.currentframe().f_code.co_name, status=5).save()
         birthdate = "1995/03/25"
@@ -85,6 +98,19 @@ class TestFunction(unittest.TestCase):
         self.assertEqual(t_memeber.status, 6)
         self.assertEqual(t_memeber.birthDate, birthdate)
         t_memeber.delete()
+    def test_生日偵測不到標記(self):
+        cluster.Male(userId=inspect.currentframe().f_code.co_name, status=5).save()
+        birthdate = "沒有標記的日子"
+        dict = {}
+        self.messageRequestDict(dict, birthdate, inspect.currentframe().f_code.co_name)
+        response = self.client.post('/', json=dict)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data.decode("utf-8"), "偵測不到<>，請再試一次")
+        t_memeber = cluster.getUser(inspect.currentframe().f_code.co_name)
+        self.assertEqual(t_memeber.status, 5)
+        self.assertIsNone(t_memeber.birthDate)
+        t_memeber.delete()
+
     def test_生日confirm(self):
         cluster.Male(userId=inspect.currentframe().f_code.co_name, status=6).save()
         dict = {}
@@ -117,6 +143,19 @@ class TestFunction(unittest.TestCase):
         self.assertEqual(t_memeber.status, 8)
         self.assertEqual(t_memeber.personality, personality)
         t_memeber.delete()
+    def test_一項個人特質偵測不到標記(self):
+        cluster.Male(userId=inspect.currentframe().f_code.co_name, status=7).save()
+        personality = "沒標記的個性"
+        dict = {}
+        self.messageRequestDict(dict, personality, inspect.currentframe().f_code.co_name)
+        response = self.client.post('/', json=dict)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data.decode("utf-8"), "偵測不到<>，請再試一次")
+        t_memeber = cluster.getUser(inspect.currentframe().f_code.co_name)
+        self.assertEqual(t_memeber.status, 7)
+        self.assertIsNone(t_memeber.personality)
+        t_memeber.delete()
+
     def test_興趣10word(self):
         cluster.Male(userId=inspect.currentframe().f_code.co_name, status=8).save()
         hobit = "釣魚"
@@ -129,6 +168,19 @@ class TestFunction(unittest.TestCase):
         self.assertEqual(t_memeber.status, 9)
         self.assertEqual(t_memeber.hobit, hobit)
         t_memeber.delete()
+    def test_興趣找不到標記(self):
+        cluster.Male(userId=inspect.currentframe().f_code.co_name, status=8).save()
+        hobit = "沒有標記的興趣"
+        dict = {}
+        self.messageRequestDict(dict, hobit, inspect.currentframe().f_code.co_name)
+        response = self.client.post('/', json=dict)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data.decode("utf-8"), "偵測不到<>，請再試一次")
+        t_memeber = cluster.getUser(inspect.currentframe().f_code.co_name)
+        self.assertEqual(t_memeber.status, 8)
+        self.assertIsNone(t_memeber.hobit)
+        t_memeber.delete()
+
     def test_職業(self):
         cluster.Male(userId=inspect.currentframe().f_code.co_name, status=9).save()
         job = "工程師"
@@ -141,6 +193,19 @@ class TestFunction(unittest.TestCase):
         self.assertEqual(t_memeber.status, 10)
         self.assertEqual(t_memeber.job, job)
         t_memeber.delete()
+    def test_職業找不到標記(self):
+        cluster.Male(userId=inspect.currentframe().f_code.co_name, status=9).save()
+        job = "沒有標記的職業"
+        dict = {}
+        self.messageRequestDict(dict, job, inspect.currentframe().f_code.co_name)
+        response = self.client.post('/', json=dict)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data.decode("utf-8"), "偵測不到<>，請再試一次")
+        t_memeber = cluster.getUser(inspect.currentframe().f_code.co_name)
+        self.assertEqual(t_memeber.status, 9)
+        self.assertIsNone(t_memeber.job)
+        t_memeber.delete()
+
     def test_照片(self):
         cluster.Male(userId=inspect.currentframe().f_code.co_name, status=10).save()
         pictUri = "https://cdn2.ettoday.net/images/4832/4832937.jpg"
@@ -153,6 +218,19 @@ class TestFunction(unittest.TestCase):
         self.assertEqual(t_memeber.status, 11)
         self.assertEqual(t_memeber.pictUri, pictUri)
         t_memeber.delete()
+    def test_照片找不到標記(self):
+        cluster.Male(userId=inspect.currentframe().f_code.co_name, status=10).save()
+        pictUri = "網址沒有標記"
+        dict = {}
+        self.messageRequestDict(dict, pictUri, inspect.currentframe().f_code.co_name)
+        response = self.client.post('/', json=dict)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data.decode("utf-8"), "偵測不到<>，請再試一次")
+        t_memeber = cluster.getUser(inspect.currentframe().f_code.co_name)
+        self.assertEqual(t_memeber.status, 10)
+        self.assertIsNone(t_memeber.pictUri)
+        t_memeber.delete()
+
     def test_照片_格式錯誤(self):
         cluster.Male(userId=inspect.currentframe().f_code.co_name, status=10).save()
         pictUri = "我不是網址"
@@ -190,6 +268,19 @@ class TestFunction(unittest.TestCase):
         self.assertEqual(t_memeber.status, 12)
         self.assertEqual(t_memeber.email, email)
         t_memeber.delete()
+    def test_信箱找不到標記(self):
+        cluster.Male(userId=inspect.currentframe().f_code.co_name, status=11).save()
+        email = "我沒有標記@gmail.com"
+        dict = {}
+        self.messageRequestDict(dict, email, inspect.currentframe().f_code.co_name)
+        response = self.client.post('/', json=dict)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data.decode("utf-8"), "偵測不到<>，請再試一次")
+        t_memeber = cluster.getUser(inspect.currentframe().f_code.co_name)
+        self.assertEqual(t_memeber.status, 11)
+        self.assertIsNone(t_memeber.email)
+        t_memeber.delete()
+
     def test_信箱不存在(self):
         cluster.Male(userId=inspect.currentframe().f_code.co_name, status=11).save()
         email = "notexist@gmail.com"
@@ -226,6 +317,19 @@ class TestFunction(unittest.TestCase):
         self.assertEqual(t_memeber.status, 13)
         self.assertEqual(t_memeber.phone, phone)
         t_memeber.delete()
+    def test_電話找不到標記(self):
+        cluster.Male(userId=inspect.currentframe().f_code.co_name, status=12).save()
+        phone = "電話沒有標記"
+        dict = {}
+        self.messageRequestDict(dict, phone, inspect.currentframe().f_code.co_name)
+        response = self.client.post('/', json=dict)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data.decode("utf-8"), "偵測不到<>，請再試一次")
+        t_memeber = cluster.getUser(inspect.currentframe().f_code.co_name)
+        self.assertEqual(t_memeber.status, 12)
+        self.assertIsNone(t_memeber.phone)
+        t_memeber.delete()
+
     def test_電話格式錯誤(self):
         cluster.Male(userId=inspect.currentframe().f_code.co_name, status=12).save()
         phone = "我不是電話號碼"
