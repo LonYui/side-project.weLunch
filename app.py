@@ -33,12 +33,12 @@ def webhook():
     status = user.status
     if status==3:
         user.status+=1
-        replytext="請輸入名字"
+        replytext="請輸入<名字>"
     elif status==4:
         m = re.search("<(\S+)>",reqstext)
         if m:user.nickName=m.groups()[0]
         user.status+=1
-        replytext="請輸入生日 (yyyy-mm-dd)"
+        replytext="請輸入<生日> (yyyy-mm-dd)"
     elif status==5:
         # replytext="您是1995-03-25的牡羊男孩嗎？"
         m = re.search("<(\S+)>",reqstext)
@@ -50,36 +50,36 @@ def webhook():
     elif status==6:
         if reqstext in ["是","沒錯","y"]:
             user.status+=1
-            replytext="請輸入個人特質"
+            replytext="請輸入<個人特質>"
         elif reqstext in ["不是","剛剛手滑了","n"]:
             user.status-=1
             user.birthDate = None
-            replytext="請輸入生日 (yyyy-mm-dd)"
+            replytext="請輸入<生日> (yyyy-mm-dd)"
     elif status==7:
         m = re.search("<(\S+)>",reqstext)
         if m:user.personality=m.groups()[0]
         user.status+=1
-        replytext="請輸入興趣"
+        replytext="請輸入<興趣>"
     elif status==8:
         m = re.search("<(\S+)>",reqstext)
         if m:user.hobit=m.groups()[0]
         user.status+=1
-        replytext="請輸入職業"
+        replytext="請輸入<職業>"
     elif status==9:
         m = re.search("<(\S+)>",reqstext)
         if m:user.job=m.groups()[0]
         user.status+=1
-        replytext="請輸入照片url"
+        replytext="請輸入<照片url>"
     elif status==10:
         m = re.search("<(\S+)>",reqstext)
         if m:user.pictUri=m.groups()[0]
         user.status+=1
-        replytext="請輸入信箱"
+        replytext="請輸入<信箱>"
     elif status==11:
         m = re.search("<(\S+)>",reqstext)
         if m:user.email=m.groups()[0]
         user.status+=1
-        replytext="請輸入電話"
+        replytext="請輸入<電話>"
     elif status==12:
         m = re.search("<(\S+)>",reqstext)
         if m:user.phone=m.groups()[0]
