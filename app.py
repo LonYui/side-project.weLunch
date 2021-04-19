@@ -3,7 +3,7 @@ from flask import request
 from datetime import date
 
 from linebot import LineBotApi
-from linebot.models import TextSendMessage
+from linebot.models import TextSendMessage,template,actions
 from typing import Final
 import cluster,re
 app = Flask(__name__)
@@ -95,6 +95,16 @@ def webhook():
         else:
             user.status+=1
             replytext="最後確認，這樣資料正確嗎？"
+            action = actions.MessageAction(text="沒錯",label="沒錯")
+            column = template.CarouselColumn(title=user.nickName,
+                                    text="個性" + user.personality + "喜歡" + user.hobit + "的女孩",
+                                    thumbnail_image_url=user.pictUri,
+                                    actions=[action])
+            carouse = template.CarouselTemplate(columns=[column])
+            if token!=userId:
+                client.reply_message(token, [TextSendMessage(text=replytext),template.TemplateSendMessage(template=carouse,alt_text="broke")])
+            user.save()
+            return replytext
     elif status==14:
         if reqstext in ["是","沒錯","y","確認"]:
             user.status+=1
