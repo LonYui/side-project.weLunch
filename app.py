@@ -36,13 +36,18 @@ def webhook():
         replytext="請輸入<名字>"
     elif status==4:
         m = re.search("<(\S+)>",reqstext)
-        if m:user.nickName=m.groups()[0]
+        if not m:
+            if token !=userId:client.reply_message(token,TextSendMessage(text="偵測不到<>，請再試一次"))
+            return "偵測不到<>，請再試一次"
+        user.nickName=m.groups()[0]
         user.status+=1
         replytext="請輸入<生日> (yyyy-mm-dd)"
     elif status==5:
-        # replytext="您是1995-03-25的牡羊男孩嗎？"
         m = re.search("<(\S+)>",reqstext)
-        if m:user.birthDate=date.fromisoformat(m.groups()[0])
+        if not m:
+            if token !=userId:client.reply_message(token,TextSendMessage(text="偵測不到<>，請再試一次"))
+            return "偵測不到<>，請再試一次"
+        user.birthDate=date.fromisoformat(m.groups()[0])
         user.status+=1
         replytext="您是"+user.birthDate.isoformat()+"的"+cluster.getConstellation(user.birthDate.month,user.birthDate.day)
         if user.__class__.__name__=="Male":replytext+="男孩嗎？"
@@ -57,34 +62,52 @@ def webhook():
             replytext="請輸入<生日> (yyyy-mm-dd)"
     elif status==7:
         m = re.search("<(\S+)>",reqstext)
-        if m:user.personality=m.groups()[0]
+        if not m:
+            if token !=userId:client.reply_message(token,TextSendMessage(text="偵測不到<>，請再試一次"))
+            return "偵測不到<>，請再試一次"
+        user.personality=m.groups()[0]
         user.status+=1
         replytext="請輸入<興趣>"
     elif status==8:
         m = re.search("<(\S+)>",reqstext)
-        if m:user.hobit=m.groups()[0]
+        if not m:
+            if token !=userId:client.reply_message(token,TextSendMessage(text="偵測不到<>，請再試一次"))
+            return "偵測不到<>，請再試一次"
+        user.hobit=m.groups()[0]
         user.status+=1
         replytext="請輸入<職業>"
     elif status==9:
         m = re.search("<(\S+)>",reqstext)
-        if m:user.job=m.groups()[0]
+        if not m:
+            if token !=userId:client.reply_message(token,TextSendMessage(text="偵測不到<>，請再試一次"))
+            return "偵測不到<>，請再試一次"
+        user.job=m.groups()[0]
         user.status+=1
         replytext="請輸入<照片url>"
     elif status==10:
         m = re.search("<(\S+)>",reqstext)
-        if m:user.pictUri=m.groups()[0]
+        if not m:
+            if token !=userId:client.reply_message(token,TextSendMessage(text="偵測不到<>，請再試一次"))
+            return "偵測不到<>，請再試一次"
+        user.pictUri=m.groups()[0]
         user.status+=1
         replytext="請輸入<信箱>"
     elif status==11:
         m = re.search("<(\S+)>",reqstext)
-        if m:user.email=m.groups()[0]
+        if not m:
+            if token !=userId:client.reply_message(token,TextSendMessage(text="偵測不到<>，請再試一次"))
+            return "偵測不到<>，請再試一次"
+        user.email=m.groups()[0]
         user.status+=1
         replytext="請輸入<電話>"
     elif status==12:
         m = re.search("<(\S+)>",reqstext)
-        if m:user.phone=m.groups()[0]
+        if not m:
+            if token !=userId:client.reply_message(token,TextSendMessage(text="偵測不到<>，請再試一次"))
+            return "偵測不到<>，請再試一次"
+        user.phone=m.groups()[0]
         user.status+=1
-        replytext="請輸入驗證碼，查看手機簡訊"
+        replytext="請輸入<驗證碼>，查看手機簡訊"
     elif status==13:
         m = re.search("<(\S+)>",reqstext)
         validatCode = m.groups()[0]
@@ -97,7 +120,7 @@ def webhook():
             replytext="最後確認，這樣資料正確嗎？"
             action = actions.MessageAction(text="沒錯",label="沒錯")
             column = template.CarouselColumn(title=user.nickName,
-                                    text="個性" + user.personality + "喜歡" + user.hobit + "的女孩",
+                                    text="個性" + user.personality + "喜歡" + user.hobit + "的男孩",
                                     thumbnail_image_url=user.pictUri,
                                     actions=[action])
             carouse = template.CarouselTemplate(columns=[column])
