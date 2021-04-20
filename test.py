@@ -25,6 +25,18 @@ class TestFunction(unittest.TestCase):
         # clean database
         return
 
+    def test_預覽約會清單(self):
+        dict = {}
+        self.messageRequestDict(dict, "預覽約會", inspect.currentframe().f_code.co_name)
+        response = self.client.post('/',json=dict)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data.decode("utf-8"),"本週約會有")
+    def test_去註冊(self):
+        dict = {}
+        self.messageRequestDict(dict, "去註冊約她", inspect.currentframe().f_code.co_name)
+        response = self.client.post('/',json=dict)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data.decode("utf-8"),"請輸入性別")
     def test_點選開始使用開始啟用您的個人資料(self):
         # status 0==1
         dict = {}
@@ -331,7 +343,7 @@ class TestFunction(unittest.TestCase):
     #     self.assertEqual(response.data.decode("utf-8"), "電話號碼格式錯誤")
     #     t_memeber.delete()
     def test_輸入驗證碼(self):
-        cluster.Male(userId=inspect.currentframe().f_code.co_name, status=13,nickName="阿諺",personality="開朗",hobit="做愛",pictUri="https://i.imgur.com/9FEddMc.jpg").save()
+        cluster.Male(userId=inspect.currentframe().f_code.co_name, status=13,nickName="阿諺",personality="開朗",hobit="做愛",pictUri="https://i.imgur.com/9FEddMc.jpg",birthDate="1999-03-22").save()
         validateCode = "iampassword"
         dict = {}
         self.messageRequestDict(dict, "<" + validateCode + ">", inspect.currentframe().f_code.co_name)

@@ -20,13 +20,44 @@ def webhook():
     token:Final = rJson[0]["replyToken"]
     replytext =""
     if not user:
-        if reqstext == "開始使用":replytext = "請輸入性別"
+        if reqstext in ["開始使用","去註冊約她"]:
+            replytext = "請輸入性別"
+            action1 = actions.MessageAction(text="男生", label="男生")
+            action2 = actions.MessageAction(text="女生", label="女生")
+            column = template.CarouselColumn(text=replytext, actions=[action1, action2])
+            carouse = template.CarouselTemplate(columns=[column])
+            if token != userId: client.reply_message(token, [template.TemplateSendMessage(template=carouse,
+                                                                                          alt_text="broke")])
+            return replytext
+        elif reqstext=="預覽約會":
+            replytext = "本週約會有"
+            action = actions.MessageAction(text="去註冊約她", label="去註冊約她")
+            columnL=[]
+            for girl in cluster.Female.objects(status__gte=15):
+                column = template.CarouselColumn(title=girl.nickName,
+                                                 text="個性" + girl.personality + "喜歡" + girl.hobit + "的"+cluster.getConstellation(girl.birthDate.month,girl.birthDate.day)+"女孩",
+                                                 thumbnail_image_url=girl.pictUri,
+                                                 actions=[action])
+                if len(columnL) ==10:break
+                else :columnL.append(column)
+            carouse = template.CarouselTemplate(columns=columnL)
+            if token != userId: client.reply_message(token, [TextSendMessage(text=replytext),template.TemplateSendMessage(template=carouse,alt_text="broke")])
+            return replytext
         elif reqstext in ["男生","男"]:
             cluster.Male(userId=userId,status=3).save()
             replytext = "注意：需用<>標記訊息"
         elif reqstext in ["女生","女"]:
             cluster.Female(status=3,userId = userId).save()
             replytext = "注意：需用<>標記訊息"
+        else:
+            replytext= "歡迎"
+            action1 = actions.MessageAction(text="開始使用", label="開始使用")
+            action2 = actions.MessageAction(text="預覽約會", label="預覽約會")
+            column = template.CarouselColumn(text=replytext,actions=[action1,action2])
+            carouse = template.CarouselTemplate(columns=[column])
+            if token != userId: client.reply_message(token, [template.TemplateSendMessage(template=carouse,
+                                                                                          alt_text="broke")])
+            return replytext
         if token!=userId:client.reply_message(token,TextSendMessage(text=replytext))
         return replytext
     # status 3 ~ 15
@@ -52,6 +83,15 @@ def webhook():
         replytext="您是"+user.birthDate.isoformat()+"的"+cluster.getConstellation(user.birthDate.month,user.birthDate.day)
         if user.__class__.__name__=="Male":replytext+="男孩嗎？"
         elif user.__class__.__name__=="Female":replytext+="女孩嗎？"
+        action1 = actions.MessageAction(text="沒錯", label="沒錯")
+        action2 = actions.MessageAction(text="剛剛手滑了", label="剛剛手滑了")
+        column = template.CarouselColumn(text=replytext, actions=[action1, action2])
+        carouse = template.CarouselTemplate(columns=[column])
+        if token != userId: client.reply_message(token, [template.TemplateSendMessage(template=carouse,
+                                                                                      alt_text="broke")])
+        user.save()
+        return replytext
+
     elif status==6:
         if reqstext in ["是","沒錯","y"]:
             user.status+=1
@@ -118,9 +158,15 @@ def webhook():
         else:
             user.status+=1
             replytext="最後確認，這樣資料正確嗎？"
+            text = "個性" + user.personality + "喜歡" + user.hobit + "的"+\
+                   cluster.getConstellation(user.birthDate.month,user.birthDate.day)+"男孩"
+            if user.__class__.__name__ == "Male":
+                text += "男孩"
+            elif user.__class__.__name__ == "Female":
+                text += "女孩"
             action = actions.MessageAction(text="沒錯",label="沒錯")
             column = template.CarouselColumn(title=user.nickName,
-                                    text="個性" + user.personality + "喜歡" + user.hobit + "的男孩",
+                                    text=text,
                                     thumbnail_image_url=user.pictUri,
                                     actions=[action])
             carouse = template.CarouselTemplate(columns=[column])
