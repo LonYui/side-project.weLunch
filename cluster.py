@@ -49,3 +49,15 @@ def getConstellation(month, date):
         return constellations[month-1]
     else:
         return constellations[month]
+
+class Date(me.Document):
+    workDist = me.StringField()
+    lunchBreakT = me.StringField()
+    lunchBreakL = me.IntField()
+    eatype = me.StringField
+    dateDate = me.DateField()
+
+    maleId = me.StringField()
+    femaleId = me.StringField()
+    status = me.IntField
+    meta = {'collection': 'Date'}
