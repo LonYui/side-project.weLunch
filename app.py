@@ -6,6 +6,8 @@ from linebot import LineBotApi
 from linebot.models import TextSendMessage,template,actions
 from typing import Final
 import cluster,re
+import strategy
+
 app = Flask(__name__)
 
 @app.route("/",methods=['POST'])
@@ -187,30 +189,7 @@ def webhook():
     elif status==110:
         date = cluster.Date.objects.get(femaleId=userId)
         Dstatus = date.status
-        if Dstatus==1:
-            date.workDist = reqstext
-            replytext = "幾點開始午休呢"
-            date.status+=1
-        elif Dstatus==2:
-            date.lunchBreakT = reqstext
-            replytext = "午休時間很長嗎？"
-            date.status+=1
-        elif Dstatus==3:
-            date.lunchBreakL = reqstext[3:]
-            replytext = "喜歡吃韓式還是日式？"
-            date.status+=1
-        elif Dstatus==4:
-            date.eatype = reqstext
-            replytext = "那約明天、後天還是大後天？"
-            date.status+=1
-        elif Dstatus==5:
-            date.dateDate = dt.today()
-            if reqstext=="明天":date.dateDate += timedelta(days=1)
-            elif reqstext=="後天":date.dateDate += timedelta(days=2)
-            elif reqstext=="大後天":date.dateDate +=timedelta(days=3)
-            replytext = "成功發起約會"
-            date.status = 10
-        date.save()
+        replytext = strategy.ST_Dstatus(n=Dstatus,date=date,reqstext=reqstext)
     user.save()
     if token!=userId:client.reply_message(token,TextSendMessage(text=replytext))
     return replytext
