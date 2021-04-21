@@ -2,7 +2,7 @@ import unittest,inspect
 
 from linebot.models import events,messages,sources
 import app
-import cluster
+import cluster,datetime
 
 
 class TestFunction(unittest.TestCase):
@@ -20,6 +20,7 @@ class TestFunction(unittest.TestCase):
             if function[0].find('test_') != -1 :
                 name = function[0]
                 if cluster.getUser(name):cluster.getUser(name).delete()
+                if cluster.getDate(name):cluster.getDate(name).delete()
         cls.client = app.app.test_client()
     @classmethod
     def tearDownClass(cls):
@@ -36,28 +37,31 @@ class TestFunction(unittest.TestCase):
         t_memeber = cluster.getUser(inspect.currentframe().f_code.co_name)
         self.assertEqual(t_memeber.status, 110)
         t_memeber.delete()
-        t_date = cluster.Date.objects().get(femaleId=inspect.currentframe().f_code.co_name)
+        t_date = cluster.getDate(inspect.currentframe().f_code.co_name)
         self.assertEqual(t_date.femaleId, inspect.currentframe().f_code.co_name)
         t_date.delete()
     def test_選擇希望吃飯地區(self):
+        t_member = t_member = cluster.Female(userId=inspect.currentframe().f_code.co_name, status=110).save()
         cluster.Date(femaleId=inspect.currentframe().f_code.co_name,status=1).save()
         dict = {}
         self.messageRequestDict(dict, "內湖科學園區", inspect.currentframe().f_code.co_name)
         response = self.client.post('/', json=dict)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data.decode("utf-8"), "幾點開始午休呢")
-        t_date = cluster.Date.objects().get(femaleId=inspect.currentframe().f_code.co_name)
+        t_date = cluster.getDate(inspect.currentframe().f_code.co_name)
         self.assertEqual(t_date.status, 2)
         self.assertEqual(t_date.workDist,"內湖科學園區")
         t_date.delete()
+        t_member.delete()
     def test_輸入午休時間(self):
+        t_member = t_member = cluster.Female(userId=inspect.currentframe().f_code.co_name, status=110).save()
         cluster.Date(femaleId=inspect.currentframe().f_code.co_name,status = 2).save()
         dict = {}
         self.messageRequestDict(dict, "十二點半", inspect.currentframe().f_code.co_name)
         response = self.client.post('/', json=dict)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data.decode("utf-8"), "午休時間很長嗎？")
-        t_date = cluster.Date.objects().get(femaleId=inspect.currentframe().f_code.co_name)
+        t_date = cluster.getDate(inspect.currentframe().f_code.co_name)
         self.assertEqual(t_date.status, 3)
         self.assertEqual(t_date.lunchBreakT, "十二點半")
         # t_memeber.delete()
@@ -68,40 +72,44 @@ class TestFunction(unittest.TestCase):
         response = self.client.post('/', json=dict)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data.decode("utf-8"), "喜歡吃韓式還是日式？")
-        # 試試看會不會壞掉ＸＤ
-        # t_date = cluster.Date.objects().get(femaleId=inspect.currentframe().f_code.co_name)
+        t_date = cluster.getDate(inspect.currentframe().f_code.co_name)
         self.assertEqual(t_date.status, 4)
         self.assertEqual(t_date.lunchBreakL, "一小半")
         t_date.delete()
+        t_member.delete()
     def test_許願池(self):
+        t_member = cluster.Female(userId=inspect.currentframe().f_code.co_name, status=110).save()
         cluster.Date(femaleId=inspect.currentframe().f_code.co_name,status = 4).save()
         dict = {}
         self.messageRequestDict(dict, "港式", inspect.currentframe().f_code.co_name)
         response = self.client.post('/', json=dict)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data.decode("utf-8"), "那約明天、後天還是大後天？")
-        t_date = cluster.Date.objects().get(femaleId=inspect.currentframe().f_code.co_name)
+        t_date = cluster.getDate(inspect.currentframe().f_code.co_name)
         self.assertEqual(t_date.status, 5)
         self.assertEqual(t_date.eatype, "港式")
         t_date.delete()
+        t_member.delete()
     def test_選擇日期(self):
+        t_member = cluster.Female(userId=inspect.currentframe().f_code.co_name, status=110).save()
         cluster.Date(femaleId=inspect.currentframe().f_code.co_name,status = 5).save()
         dict = {}
         self.messageRequestDict(dict, "明天", inspect.currentframe().f_code.co_name)
         response = self.client.post('/', json=dict)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data.decode("utf-8"), "成功發起約會")
-        t_date = cluster.Date.objects().get(femaleId=inspect.currentframe().f_code.co_name)
+        t_date = cluster.getDate(inspect.currentframe().f_code.co_name)
         self.assertEqual(t_date.status, 10)
-        self.assertEqual(t_date.eatype, "明天")
+        self.assertEqual(t_date.dateDate, datetime.date.today() + datetime.timedelta(days=1) )
         t_date.delete()
+        t_member.delete()
 
 
 
     
     
     # def test_選擇約會對象(self):
-    #     cluster.Female(userId=inspect.currentframe().f_code.co_name, status=110).save()
+    #     t_member = cluster.Female(userId=inspect.currentframe().f_code.co_name, status=110).save()
     #     cluster.male(userId=inspect.currentframe().f_code.co_name, status=110).save()
     #     cluster
     #     dict = {}

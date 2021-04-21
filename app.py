@@ -1,6 +1,6 @@
 from flask import Flask
 from flask import request
-from datetime import date
+from datetime import date as dt,timedelta
 
 from linebot import LineBotApi
 from linebot.models import TextSendMessage,template,actions
@@ -78,7 +78,7 @@ def webhook():
         if not m:
             if token !=userId:client.reply_message(token,TextSendMessage(text="偵測不到<>，請再試一次"))
             return "偵測不到<>，請再試一次"
-        user.birthDate=date.fromisoformat(m.groups()[0])
+        user.birthDate=dt.fromisoformat(m.groups()[0])
         user.status+=1
         replytext="您是"+user.birthDate.isoformat()+"的"+cluster.getConstellation(user.birthDate.month,user.birthDate.day)
         if user.__class__.__name__=="Male":replytext+="男孩嗎？"
@@ -178,6 +178,39 @@ def webhook():
         if reqstext in ["是","沒錯","y","確認"]:
             user.status+=1
             replytext="待審核後就可以開始使用了"
+
+    elif status==100:
+        if(reqstext=="發起約會"):
+            replytext = "上班在哪一區呀？"
+            cluster.Date(femaleId=user.userId,status=1).save()
+            user.status+=10
+    elif status==110:
+        date = cluster.Date.objects.get(femaleId=userId)
+        Dstatus = date.status
+        if Dstatus==1:
+            date.workDist = reqstext
+            replytext = "幾點開始午休呢"
+            date.status+=1
+        elif Dstatus==2:
+            date.lunchBreakT = reqstext
+            replytext = "午休時間很長嗎？"
+            date.status+=1
+        elif Dstatus==3:
+            date.lunchBreakL = reqstext[3:]
+            replytext = "喜歡吃韓式還是日式？"
+            date.status+=1
+        elif Dstatus==4:
+            date.eatype = reqstext
+            replytext = "那約明天、後天還是大後天？"
+            date.status+=1
+        elif Dstatus==5:
+            date.dateDate = dt.today()
+            if reqstext=="明天":date.dateDate += timedelta(days=1)
+            elif reqstext=="後天":date.dateDate += timedelta(days=2)
+            elif reqstext=="大後天":date.dateDate +=timedelta(days=3)
+            replytext = "成功發起約會"
+            date.status = 10
+        date.save()
     user.save()
     if token!=userId:client.reply_message(token,TextSendMessage(text=replytext))
     return replytext

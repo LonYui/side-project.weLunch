@@ -53,11 +53,21 @@ def getConstellation(month, date):
 class Date(me.Document):
     workDist = me.StringField()
     lunchBreakT = me.StringField()
-    lunchBreakL = me.IntField()
-    eatype = me.StringField
+    lunchBreakL = me.StringField()
+    eatype = me.StringField()
     dateDate = me.DateField()
 
     maleId = me.StringField()
-    femaleId = me.StringField()
-    status = me.IntField
+    femaleId = me.StringField(unique=True)
+    status = me.IntField()
     meta = {'collection': 'Date'}
+
+def getDate(userId):
+    qMale = Date.objects(maleId = userId)
+    qFemale = Date.objects(femaleId = userId)
+    if qMale:
+        return Date.objects.get(maleId = userId)
+    elif qFemale:
+        return Date.objects.get(femaleId = userId)
+    else :
+        return None
