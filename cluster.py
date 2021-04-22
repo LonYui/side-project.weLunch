@@ -56,6 +56,7 @@ class Date(me.Document):
     lunchBreakL = me.StringField()
     eatype = me.StringField()
     dateDate = me.DateField()
+    invList = me.ListField(me.StringField)
 
     maleId = me.StringField()
     femaleId = me.StringField(unique=True)
