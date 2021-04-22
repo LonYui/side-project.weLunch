@@ -15,14 +15,28 @@ def webhook():
     client = LineBotApi("jpkaZF4J41V3hTOT7kinpR16tTormHg0pKDpr5UJX6sOyeIETiHnXOYveDupNa6Zk6KKE1B+zZSiKQJ8qSrGVCeDD2EEsRzXeOEImKtQfrU1UjvLysgAvcRoGpMVos79emD+gZT3uJvF1O2pLJIQkgdB04t89/1O/w1cDnyilFU=")
     rJson = request.json["events"]
     if not rJson:return "ok"
-    type:Final = rJson[0]["type"]
-    if type not in ["postback","message"]:return
+    Etype:Final = rJson[0]["type"]
+    if Etype not in ["postback","message"]:return
     userId:Final = rJson[0]["source"]["userId"]
     user = cluster.getUser(userId)
-    # status 1 ~ 2
-    reqstext:Final = rJson[0]["message"]["text"]
+    status = user.status
     token:Final = rJson[0]["replyToken"]
     replytext =""
+    if Etype == "postback":
+        if status==100:
+            reqData:Final = rJson[0]["postback"]["data"]
+            user.status+=10
+            date = cluster.getDate(reqData["userId"])
+            date.invList.append(userId)
+            date.status+=1
+            date.save()
+            user.save()
+            replytext="成功邀約，對象會在24小時內回覆"
+            if token != userId: client.reply_message(token, TextSendMessage(text=replytext))
+            return replytext
+
+    # status 1 ~ 2
+    reqstext:Final = rJson[0]["message"]["text"]
     if not user:
         if reqstext in ["開始使用","去註冊約她"]:
             replytext = "請輸入性別"
@@ -65,7 +79,6 @@ def webhook():
         if token!=userId:client.reply_message(token,TextSendMessage(text=replytext))
         return replytext
     # status 3 ~ 15
-    status = user.status
     if status==3:
         user.status+=1
         replytext="請輸入<名字>"

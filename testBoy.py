@@ -20,7 +20,9 @@ class TestFunction(unittest.TestCase):
             if function[0].find('test_') != -1 :
                 name = function[0]
                 if cluster.getUser(name):cluster.getUser(name).delete()
+                if cluster.getUser(name+"G"):cluster.getUser(name+"G").delete()
                 if cluster.getDate(name):cluster.getDate(name).delete()
+                if cluster.getDate(name+"G"):cluster.getDate(name+"G").delete()
         cls.client = app.app.test_client()
     @classmethod
     def tearDownClass(cls):
@@ -59,9 +61,14 @@ class TestFunction(unittest.TestCase):
 
     def postBackRequestDict(self,dict,data,user_id_token):
         dict["destination"] = "testscript"
-        dict["events"] = [events.PostbackEvent(postback=data,
+        dict["events"] = [events.PostbackEvent(postback=events.Postback(data),
                                               reply_token=user_id_token,
                                               source=sources.SourceUser(user_id=user_id_token)).__dict__]
+        for event in dict["events"]:
+            event['source'] = event['source'].__dict__
+            event["postback"] =event["postback"].__dict__
+            event['replyToken'] = event['reply_token']
+            event['source']['userId'] = event['source']['user_id']
 
 
 if __name__ == '__main__':
