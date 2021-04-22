@@ -198,11 +198,25 @@ def webhook():
             replytext="待審核後就可以開始使用了"
 
     elif status==100:
-        if(reqstext=="發起約會"):
+        if reqstext=="發起約會":
             replytext = "上班在哪一區呀？"
             cluster.Date(femaleId=user.userId,status=1).save()
             user.status+=10
-
+        elif reqstext=="觀看約會":
+            colLis = []
+            for dating in cluster.Date.objects(status==10):
+                girl = cluster.getUser(dating.femaleId)
+                action = actions.PostbackAction(data="userId="+dating.femaleId,label="邀請她",display_text="邀請她")
+                column = template.CarouselColumn(actions=[action],
+                                                 title = str( cluster.calculate_age(girl.birthDate) )+","+girl.nickName,
+                                                 text = "我在"+dating.workDist+"上班，喜歡"+dating.eatype+"，拜"+str(dating.dateDate.isoweekday() )+"有空嗎？",
+                                                 thumbnail_image_url = girl.pictUri,
+                                                 )
+                colLis.append(column)
+            carouse = template.CarouselTemplate(columns=colLis)
+            if token != userId: client.reply_message(token, [template.TemplateSendMessage(template=carouse,
+                                                                                          alt_text="broke")])
+            return replytext
     elif status==110:
         date = cluster.Date.objects.get(femaleId=userId)
         Dstatus = date.status

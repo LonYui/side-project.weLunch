@@ -1,5 +1,6 @@
 import mongoengine as me
 from mongoengine import connect
+from datetime import  date
 
 connect(host ="mongodb+srv://Tsung:d39105648@restaurant.m9bx2.mongodb.net/myFirstDatabase?retryWrites=true&w=majority" )
 
@@ -49,6 +50,11 @@ def getConstellation(month, date):
         return constellations[month-1]
     else:
         return constellations[month]
+
+def calculate_age(born):
+    """ from stackoverflow 12 讚"""
+    today = date.today()
+    return today.year - born.year - ((today.month, today.day) < (born.month, born.day))
 
 class Date(me.Document):
     workDist = me.StringField()
