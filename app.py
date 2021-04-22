@@ -19,10 +19,10 @@ def webhook():
     if Etype not in ["postback","message"]:return
     userId:Final = rJson[0]["source"]["userId"]
     user = cluster.getUser(userId)
-    status = user.status
     token:Final = rJson[0]["replyToken"]
     replytext =""
     if Etype == "postback":
+        status = user.status
         if status==100:
             reqData:Final = rJson[0]["postback"]["data"]
             user.status+=10
@@ -78,6 +78,7 @@ def webhook():
             return replytext
         if token!=userId:client.reply_message(token,TextSendMessage(text=replytext))
         return replytext
+    status = user.status
     # status 3 ~ 15
     if status==3:
         user.status+=1
