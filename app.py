@@ -15,6 +15,8 @@ def webhook():
     client = LineBotApi("jpkaZF4J41V3hTOT7kinpR16tTormHg0pKDpr5UJX6sOyeIETiHnXOYveDupNa6Zk6KKE1B+zZSiKQJ8qSrGVCeDD2EEsRzXeOEImKtQfrU1UjvLysgAvcRoGpMVos79emD+gZT3uJvF1O2pLJIQkgdB04t89/1O/w1cDnyilFU=")
     rJson = request.json["events"]
     if not rJson:return "ok"
+    type:Final = rJson[0]["type"]
+    if type not in ["postback","message"]:return
     userId:Final = rJson[0]["source"]["userId"]
     user = cluster.getUser(userId)
     # status 1 ~ 2
@@ -186,6 +188,7 @@ def webhook():
             replytext = "上班在哪一區呀？"
             cluster.Date(femaleId=user.userId,status=1).save()
             user.status+=10
+
     elif status==110:
         date = cluster.Date.objects.get(femaleId=userId)
         Dstatus = date.status

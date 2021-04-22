@@ -8,7 +8,6 @@ import cluster
 
 class TestFunction(unittest.TestCase):
     """userId & replytoken = inspect.currentframe().f_code.co_name (aka current fuct name)
-    TODO：input event 只能是 message
     for status 123 因為還沒創建資料，所以要用 app 回傳 json 判斷正確性
     t_member ：測試用帳號 var 名稱
     """
@@ -389,6 +388,7 @@ class TestFunction(unittest.TestCase):
             event['replyToken']=event['reply_token']
             event['source']['userId']=event['source']['user_id']
         return
+
 
 if __name__ == '__main__':
     unittest.main()
