@@ -220,7 +220,8 @@ def webhook():
     elif status==110:
         date = cluster.Date.objects.get(femaleId=userId)
         Dstatus = date.status
-        replytext = strategy.ST_Dstatus(n=Dstatus,date=date,reqstext=reqstext)
+        replytext = strategy.ST_Dstatus(n=Dstatus,date=date,reqstext=reqstext,userId=userId,token=token,client=client)
+        return replytext
     user.save()
     if token!=userId:client.reply_message(token,TextSendMessage(text=replytext))
     return replytext
