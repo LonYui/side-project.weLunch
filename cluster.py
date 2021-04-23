@@ -63,6 +63,8 @@ class Date(me.Document):
     eatype = me.StringField()
     dateDate = me.DateField()
     invList = me.ListField(me.StringField())
+    # status 11
+    inlineRes = me.URLField()
 
     maleId = me.StringField()
     femaleId = me.StringField(unique=True)

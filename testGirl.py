@@ -8,6 +8,7 @@ import cluster,datetime
 class TestFunction(unittest.TestCase):
     """scope:女生約會流程"""
     """userId & replytoken = inspect.currentframe().f_code.co_name (aka current fuct name)
+    userId2 = inspect.currentframe().f_code.co_name +"M"
     TODO：input event 只能是 message
     for status 123 因為還沒創建資料，所以要用 app 回傳 json 判斷正確性
     t_member ：測試用帳號 var 名稱
@@ -104,27 +105,19 @@ class TestFunction(unittest.TestCase):
         t_date.delete()
         t_member.delete()
 
-
-
-    
-    
-    # def test_選擇約會對象(self):
-    #     t_member = cluster.Female(userId=inspect.currentframe().f_code.co_name, status=110).save()
-    #     cluster.male(userId=inspect.currentframe().f_code.co_name, status=110).save()
-    #     cluster
-    #     dict = {}
-    #     self.messageRequestDict(dict, "確認", inspect.currentframe().f_code.co_name)
-    #     response = self.client.post('/', json=dict)
-    #     self.assertEqual(response.status_code, 200)
-    #     self.assertEqual(response.data.decode("utf-8"), "待審核後就可以開始使用了")
-    #     t_memeber = cluster.getUser(inspect.currentframe().f_code.co_name)
-    #     self.assertEqual(t_memeber.status, 15)
-    #     t_memeber.delete()
-
-        
-
-
-
+    def test_選擇約會對象(self):
+        cluster.Date(femaleId=inspect.currentframe().f_code.co_name,
+                     invList=[inspect.currentframe().f_code.co_name+"M"],status=11).save()
+        dict = {}
+        self.postBackRequestDict(dict, {"userId":inspect.currentframe().f_code.co_name+"G"}, inspect.currentframe().f_code.co_name)
+        response = self.client.post('/', json=dict)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data.decode("utf-8"), "開放 12hr 聊天")
+        t_date = cluster.getDate(inspect.currentframe().f_code.co_name)
+        self.assertEqual(t_date.status, 20)
+        self.assertEqual(t_date.maleId,inspect.currentframe().f_code.co_name+"M")
+        self.assertIsNone(t_date.invList)
+        t_date.delete()
 
     def messageRequestDict(self,dict,text,user_id_token):
         """package是下劃線,json格式應為駝峰"""
@@ -138,6 +131,18 @@ class TestFunction(unittest.TestCase):
             event['replyToken']=event['reply_token']
             event['source']['userId']=event['source']['user_id']
         return
+
+    def postBackRequestDict(self,dict,data,user_id_token):
+        dict["destination"] = "testscript"
+        dict["events"] = [events.PostbackEvent(postback=events.Postback(data),
+                                              reply_token=user_id_token,
+                                              source=sources.SourceUser(user_id=user_id_token)).__dict__]
+        for event in dict["events"]:
+            event['source'] = event['source'].__dict__
+            event["postback"] =event["postback"].__dict__
+            event['replyToken'] = event['reply_token']
+            event['source']['userId'] = event['source']['user_id']
+
 
 
 if __name__ == '__main__':

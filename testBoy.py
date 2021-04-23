@@ -45,6 +45,48 @@ class TestFunction(unittest.TestCase):
         self.assertEqual(t_date.status, 11)
         t_date.delete()
 
+    def test_討論好餐廳和時間了(self):
+        cluster.Date(femaleId=inspect.currentframe().f_code.co_name + "G",
+                     maleId=inspect.currentframe().f_code.co_name , status=20).save()
+        dict = {}
+        self.messageRequestDict(dict, "討論好餐廳和時間了",inspect.currentframe().f_code.co_name)
+        response = self.client.post('/', json=dict)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data.decode("utf-8"), "請輸入<inLIne定位資訊>")
+        t_date = cluster.getDate(inspect.currentframe().f_code.co_name)
+        self.assertEqual(t_date.status,21)
+        t_date.delete()
+
+    def test_敲定時間地點(self):
+        cluster.Date(femaleId=inspect.currentframe().f_code.co_name + "G",
+                     maleId=inspect.currentframe().f_code.co_name, status=21).save()
+        dict = {}
+        self.messageRequestDict(dict, "<"+"https://inline.app/reservations/-MYykIBSxYNLzWg4ZgtI"+">", inspect.currentframe().f_code.co_name)
+        response = self.client.post('/', json=dict)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data.decode("utf-8"), "關閉聊天，約會前12hr會開啟")
+        t_date = cluster.getDate(inspect.currentframe().f_code.co_name)
+        self.assertEqual(t_date.inLineRes,"https://inline.app/reservations/-MYykIBSxYNLzWg4ZgtI")
+        self.assertEqual(t_date.status, 30)
+        t_date
+
+    def test_約會成功(self):
+        cluster.Date(femaleId=inspect.currentframe().f_code.co_name + "G",
+                     maleId=inspect.currentframe().f_code.co_name, status=40).save()
+        dict = {}
+        self.messageRequestDict(dict, "我出發了", inspect.currentframe().f_code.co_name)
+        response = self.client.post('/', json=dict)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data.decode("utf-8"), "祝您約會順利")
+        t_date = cluster.getDate(inspect.currentframe().f_code.co_name)
+        self.assertEqual(t_date.status, 50)
+        t_memeber = cluster.getUser(inspect.currentframe().f_code.co_name)
+        self.assertEqual(t_memeber.status, 100)
+        t_memeber.delete()
+        t_memeber = cluster.getUser(inspect.currentframe().f_code.co_name+"G")
+        self.assertEqual(t_memeber.status, 100)
+        t_memeber.delete()
+
     def messageRequestDict(self,dict,text,user_id_token):
         """package是下劃線,json格式應為駝峰"""
         dict["destination"] = "testscript"
