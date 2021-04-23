@@ -31,7 +31,6 @@ class TestFunction(unittest.TestCase):
 
     def test_約她(self):
         cluster.Male(userId=inspect.currentframe().f_code.co_name, status=100).save()
-        cluster.Female(userId=inspect.currentframe().f_code.co_name+"G", status=110).save()
         cluster.Date(femaleId=inspect.currentframe().f_code.co_name+"G", status=10).save()
         dict = {}
         self.postBackRequestDict(dict, {"userId":inspect.currentframe().f_code.co_name+"G"}, inspect.currentframe().f_code.co_name)

@@ -7,6 +7,7 @@ import cluster
 
 
 class TestFunction(unittest.TestCase):
+    """scope:帳號申請流程"""
     """userId & replytoken = inspect.currentframe().f_code.co_name (aka current fuct name)
     for status 123 因為還沒創建資料，所以要用 app 回傳 json 判斷正確性
     t_member ：測試用帳號 var 名稱
