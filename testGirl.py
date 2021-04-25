@@ -117,7 +117,7 @@ class TestFunction(unittest.TestCase):
         t_date = cluster.getDate(inspect.currentframe().f_code.co_name)
         self.assertEqual(t_date.status, 20)
         self.assertEqual(t_date.maleId,inspect.currentframe().f_code.co_name+"M")
-        self.assertIsNone(t_date.invList)
+        self.assertNotIn(inspect.currentframe().f_code.co_name+"M" , t_date.invList)
         t_date.delete()
         t_member.delete()
 

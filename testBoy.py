@@ -46,6 +46,7 @@ class TestFunction(unittest.TestCase):
         t_date.delete()
 
     def test_討論好餐廳和時間了(self):
+        t_member = cluster.Male(userId=inspect.currentframe().f_code.co_name, status=110).save()
         cluster.Date(femaleId=inspect.currentframe().f_code.co_name + "G",
                      maleId=inspect.currentframe().f_code.co_name , status=20).save()
         dict = {}
@@ -56,8 +57,10 @@ class TestFunction(unittest.TestCase):
         t_date = cluster.getDate(inspect.currentframe().f_code.co_name)
         self.assertEqual(t_date.status,21)
         t_date.delete()
+        t_member.delete()
 
     def test_敲定時間地點(self):
+        t_member = cluster.Male(userId=inspect.currentframe().f_code.co_name, status=110).save()
         cluster.Date(femaleId=inspect.currentframe().f_code.co_name + "G",
                      maleId=inspect.currentframe().f_code.co_name, status=21).save()
         dict = {}
@@ -66,9 +69,10 @@ class TestFunction(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data.decode("utf-8"), "關閉聊天，約會前12hr會開啟")
         t_date = cluster.getDate(inspect.currentframe().f_code.co_name)
-        self.assertEqual(t_date.inLineRes,"https://inline.app/reservations/-MYykIBSxYNLzWg4ZgtI")
+        self.assertEqual(t_date.inlineRes,"https://inline.app/reservations/-MYykIBSxYNLzWg4ZgtI")
         self.assertEqual(t_date.status, 30)
-        t_date
+        t_date.delete()
+        t_member.delete()
 
     def test_約會成功(self):
         cluster.Date(femaleId=inspect.currentframe().f_code.co_name + "G",

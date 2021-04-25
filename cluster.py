@@ -1,4 +1,4 @@
-import mongoengine as me
+import mongoengine as me,re
 from mongoengine import connect
 from datetime import  date as DT,timedelta
 from linebot.models import actions,template,TextSendMessage
@@ -65,7 +65,7 @@ class Date(me.Document):
     dateDate = me.DateField()
     invList = me.ListField(me.StringField())
     # status 11
-    inlineRes = me.URLField()
+    inlineRes = me.StringField()
 
     maleId = me.StringField()
     femaleId = me.StringField(unique=True)
@@ -81,7 +81,10 @@ class Date(me.Document):
                ("dateDate", "成功發起約會"),(),(),(),(),
                # index:10
                ("invList","成功邀約，對象會在24小時內回覆"),
-               ("maleId","開放 12hr 聊天")
+               ("maleId","開放 12hr 聊天"),(),(),(),(),(),(),(),(),
+                # index:20
+               (None,"請輸入<inLIne定位資訊>"),
+               ("inlineRes","關閉聊天，約會前12hr會開啟")
                )
         STAT  = self.status
 
@@ -95,8 +98,12 @@ class Date(me.Document):
                 reqstext = DT.today() + timedelta(days=2)
             elif reqstext == "大後天":
                 reqstext = DT.today() + timedelta(days=3)
-        elif STAT==10:pass
-        elif STAT==11:pass
+        elif STAT ==21:
+            m = re.search("<(\S+)>", reqstext)
+            if not m:
+                if token != userId: client.reply_message(token, TextSendMessage(text="偵測不到<>，請再試一次"))
+                return "偵測不到<>，請再試一次"
+            reqstext = m.groups()[0]
         else:pass
         attr = tup[STAT][0]
         if attr == 'invList':
@@ -104,13 +111,15 @@ class Date(me.Document):
         elif attr == 'maleId':
             self.invList.remove(reqstext)
             setattr(self, attr, reqstext)
+        elif attr == None:pass
         else:
             setattr(self, attr, reqstext)
 
         # 處理 status 變換
-        if STAT in (1,2,3,4,10):self.status += 1
+        if STAT in (1,2,3,4,10,20):self.status += 1
         elif STAT == 5:self.status = 10
         elif STAT ==11:self.status = 20
+        elif STAT ==21:self.status = 30
         # 處理 replyMessage
         replytext = tup[STAT][1]
         if STAT in (1, 2, 3, 4):
@@ -121,7 +130,7 @@ class Date(me.Document):
             carouse = template.CarouselTemplate(columns=[column])
             if token != userId: client.reply_message(token, [template.TemplateSendMessage(template=carouse,
                                                                                           alt_text="broke")])
-        elif STAT in(5,10):
+        else :
             if token != userId: client.reply_message(token, TextSendMessage(text=replytext))
         self.save()
         return replytext

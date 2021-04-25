@@ -218,7 +218,7 @@ def webhook():
                                                                                           alt_text="broke")])
             return replytext
     elif status==110:
-        date = cluster.Date.objects.get(femaleId=userId)
+        date = cluster.getDate(userId)
         replytext = date.ST_Dstatus(reqstext=reqstext,userId=userId,token=token,client=client)
         return replytext
     user.save()
