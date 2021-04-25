@@ -29,6 +29,11 @@ def webhook():
             replytext = date.ST_Dstatus(reqstext=userId,userId=userId,token=token,client=client)
             user.save()
             return replytext
+        elif status==110:
+            reqData:Final = rJson[0]["postback"]["data"]
+            date = cluster.getDate(userId)
+            replytext = date.ST_Dstatus(reqstext=reqData["userId"],userId=userId,token=token,client=client)
+            return replytext
 
     # status 1 ~ 2
     reqstext:Final = rJson[0]["message"]["text"]

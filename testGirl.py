@@ -106,10 +106,11 @@ class TestFunction(unittest.TestCase):
         t_member.delete()
 
     def test_選擇約會對象(self):
+        t_member = cluster.Female(userId=inspect.currentframe().f_code.co_name,status=110).save()
         cluster.Date(femaleId=inspect.currentframe().f_code.co_name,
                      invList=[inspect.currentframe().f_code.co_name+"M"],status=11).save()
         dict = {}
-        self.postBackRequestDict(dict, {"userId":inspect.currentframe().f_code.co_name+"G"}, inspect.currentframe().f_code.co_name)
+        self.postBackRequestDict(dict, {"userId":inspect.currentframe().f_code.co_name+"M"}, inspect.currentframe().f_code.co_name)
         response = self.client.post('/', json=dict)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data.decode("utf-8"), "開放 12hr 聊天")
@@ -118,6 +119,7 @@ class TestFunction(unittest.TestCase):
         self.assertEqual(t_date.maleId,inspect.currentframe().f_code.co_name+"M")
         self.assertIsNone(t_date.invList)
         t_date.delete()
+        t_member.delete()
 
     def messageRequestDict(self,dict,text,user_id_token):
         """package是下劃線,json格式應為駝峰"""
