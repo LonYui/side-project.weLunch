@@ -82,6 +82,7 @@ class Date(me.Document):
 
                )
         STAT  = self.status
+
         # 處理assign Value
         if  STAT== 3:
             reqstext = reqstext[3:]
@@ -92,14 +93,16 @@ class Date(me.Document):
                 reqstext = DT.today() + timedelta(days=2)
             elif reqstext == "大後天":
                 reqstext = DT.today() + timedelta(days=3)
+        else:pass
         attr = tup[STAT][0]
-        # 處理 status 變換
         setattr(self, attr, reqstext)
-        self.status += 1
-        if STAT == 5:
-            self.status = 10
-        replytext = tup[STAT][1]
+
+        # 處理 status 變換
+        if STAT in (1,2,3,4):self.status += 1
+        elif STAT == 5:self.status = 10
+
         # 處理 replyMessage
+        replytext = tup[STAT][1]
         if STAT in (1, 2, 3, 4):
             action1 = actions.MessageAction(text=tup[STAT][2][0], label=tup[STAT][2][0])
             action2 = actions.MessageAction(text=tup[STAT][2][1], label=tup[STAT][2][1])
@@ -108,6 +111,7 @@ class Date(me.Document):
             carouse = template.CarouselTemplate(columns=[column])
             if token != userId: client.reply_message(token, [template.TemplateSendMessage(template=carouse,
                                                                                           alt_text="broke")])
+        elif STAT ==5:pass
         self.save()
         return replytext
 
