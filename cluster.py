@@ -1,7 +1,7 @@
 import mongoengine as me
 from mongoengine import connect
 from datetime import  date as DT,timedelta
-from linebot.models import actions,template
+from linebot.models import actions,template,TextSendMessage
 
 connect(host ="mongodb+srv://Tsung:d39105648@restaurant.m9bx2.mongodb.net/myFirstDatabase?retryWrites=true&w=majority" )
 
@@ -78,8 +78,9 @@ class Date(me.Document):
                ("lunchBreakT", "午休時間很長嗎？", ("普通，一小", "還行，一小半", "很長，兩小")),
                ("lunchBreakL", "喜歡吃韓式還是日式", ("日式", "韓式", "港式")),
                ("eatype", "那約個明天、後天", ("明天", "後天", "大後天")),
-               ("dateDate", "成功發起約會")
-
+               ("dateDate", "成功發起約會"),(),(),(),(),
+               # index:10
+               ("invList","成功邀約，對象會在24小時內回覆")
                )
         STAT  = self.status
 
@@ -93,14 +94,17 @@ class Date(me.Document):
                 reqstext = DT.today() + timedelta(days=2)
             elif reqstext == "大後天":
                 reqstext = DT.today() + timedelta(days=3)
+        elif STAT==10:pass
         else:pass
         attr = tup[STAT][0]
-        setattr(self, attr, reqstext)
+        if attr == 'invList':
+            self[attr].append(reqstext)
+        else:
+            setattr(self, attr, reqstext)
 
         # 處理 status 變換
-        if STAT in (1,2,3,4):self.status += 1
+        if STAT in (1,2,3,4,10):self.status += 1
         elif STAT == 5:self.status = 10
-
         # 處理 replyMessage
         replytext = tup[STAT][1]
         if STAT in (1, 2, 3, 4):
@@ -111,7 +115,8 @@ class Date(me.Document):
             carouse = template.CarouselTemplate(columns=[column])
             if token != userId: client.reply_message(token, [template.TemplateSendMessage(template=carouse,
                                                                                           alt_text="broke")])
-        elif STAT ==5:pass
+        elif STAT in(5,10):
+            if token != userId: client.reply_message(token, TextSendMessage(text=replytext))
         self.save()
         return replytext
 

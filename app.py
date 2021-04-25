@@ -26,12 +26,8 @@ def webhook():
             reqData:Final = rJson[0]["postback"]["data"]
             user.status+=10
             date = cluster.getDate(reqData["userId"])
-            date.invList.append(userId)
-            date.status+=1
-            date.save()
+            replytext = date.ST_Dstatus(reqstext=userId,userId=userId,token=token,client=client)
             user.save()
-            replytext="成功邀約，對象會在24小時內回覆"
-            if token != userId: client.reply_message(token, TextSendMessage(text=replytext))
             return replytext
 
     # status 1 ~ 2
@@ -218,7 +214,6 @@ def webhook():
             return replytext
     elif status==110:
         date = cluster.Date.objects.get(femaleId=userId)
-        Dstatus = date.status
         replytext = date.ST_Dstatus(reqstext=reqstext,userId=userId,token=token,client=client)
         return replytext
     user.save()
