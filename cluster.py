@@ -1,6 +1,7 @@
 import mongoengine as me
 from mongoengine import connect
-from datetime import  date
+from datetime import  date as DT,timedelta
+from linebot.models import actions,template
 
 connect(host ="mongodb+srv://Tsung:d39105648@restaurant.m9bx2.mongodb.net/myFirstDatabase?retryWrites=true&w=majority" )
 
@@ -53,7 +54,7 @@ def getConstellation(month, date):
 
 def calculate_age(born):
     """ from stackoverflow 12 讚"""
-    today = date.today()
+    today = DT.today()
     return today.year - born.year - ((today.month, today.day) < (born.month, born.day))
 
 class Date(me.Document):
@@ -70,6 +71,46 @@ class Date(me.Document):
     femaleId = me.StringField(unique=True)
     status = me.IntField()
     meta = {'collection': 'Date'}
+
+    def ST_Dstatus(self, reqstext, userId, token, client):
+        tup = ((),
+               ("workDist", "幾點開始午休呢", ("十二點", "十二點半", "一點")),
+               ("lunchBreakT", "午休時間很長嗎？", ("普通，一小", "還行，一小半", "很長，兩小")),
+               ("lunchBreakL", "喜歡吃韓式還是日式", ("日式", "韓式", "港式")),
+               ("eatype", "那約個明天、後天", ("明天", "後天", "大後天")),
+               ("dateDate", "成功發起約會")
+
+               )
+        STAT  = self.status
+        # 處理assign Value
+        if  STAT== 3:
+            reqstext = reqstext[3:]
+        elif STAT == 5:
+            if reqstext == "明天":
+                reqstext = DT.today() + timedelta(days=1)
+            elif reqstext == "後天":
+                reqstext = DT.today() + timedelta(days=2)
+            elif reqstext == "大後天":
+                reqstext = DT.today() + timedelta(days=3)
+        attr = tup[STAT][0]
+        # 處理 status 變換
+        setattr(self, attr, reqstext)
+        self.status += 1
+        if STAT == 5:
+            self.status = 10
+        replytext = tup[STAT][1]
+        # 處理 replyMessage
+        if STAT in (1, 2, 3, 4):
+            action1 = actions.MessageAction(text=tup[STAT][2][0], label=tup[STAT][2][0])
+            action2 = actions.MessageAction(text=tup[STAT][2][1], label=tup[STAT][2][1])
+            action3 = actions.MessageAction(text=tup[STAT][2][2], label=tup[STAT][2][2])
+            column = template.CarouselColumn(text=replytext, actions=[action1, action2, action3])
+            carouse = template.CarouselTemplate(columns=[column])
+            if token != userId: client.reply_message(token, [template.TemplateSendMessage(template=carouse,
+                                                                                          alt_text="broke")])
+        self.save()
+        return replytext
+
 
 def getDate(userId):
     qMale = Date.objects(maleId = userId)

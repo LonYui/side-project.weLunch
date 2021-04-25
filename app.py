@@ -1,12 +1,11 @@
 from flask import Flask
 from flask import request
-from datetime import date as dt,timedelta
+from datetime import date as dt
 
 from linebot import LineBotApi
 from linebot.models import TextSendMessage,template,actions
 from typing import Final
 import cluster,re
-import strategy
 
 app = Flask(__name__)
 
@@ -220,7 +219,7 @@ def webhook():
     elif status==110:
         date = cluster.Date.objects.get(femaleId=userId)
         Dstatus = date.status
-        replytext = strategy.ST_Dstatus(n=Dstatus,date=date,reqstext=reqstext,userId=userId,token=token,client=client)
+        replytext = date.ST_Dstatus(reqstext=reqstext,userId=userId,token=token,client=client)
         return replytext
     user.save()
     if token!=userId:client.reply_message(token,TextSendMessage(text=replytext))
