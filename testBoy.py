@@ -75,6 +75,8 @@ class TestFunction(unittest.TestCase):
         t_member.delete()
 
     def test_約會成功(self):
+        cluster.Male(userId=inspect.currentframe().f_code.co_name, status=110).save()
+        cluster.Female(userId=inspect.currentframe().f_code.co_name + "G", status=110).save()
         cluster.Date(femaleId=inspect.currentframe().f_code.co_name + "G",
                      maleId=inspect.currentframe().f_code.co_name, status=40).save()
         dict = {}

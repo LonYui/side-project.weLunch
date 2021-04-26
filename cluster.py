@@ -84,7 +84,11 @@ class Date(me.Document):
                ("maleId","開放 12hr 聊天"),(),(),(),(),(),(),(),(),
                 # index:20
                (None,"請輸入<inLIne定位資訊>"),
-               ("inlineRes","關閉聊天，約會前12hr會開啟")
+               ("inlineRes","關閉聊天，約會前12hr會開啟"),(),(),(),(),(),(),(),(),
+               (), (), (), (), (), (), (), (), (), (),
+               # index:40
+               (None,"祝您約會順利")
+
                )
         STAT  = self.status
 
@@ -120,6 +124,14 @@ class Date(me.Document):
         elif STAT == 5:self.status = 10
         elif STAT ==11:self.status = 20
         elif STAT ==21:self.status = 30
+        elif STAT ==40:
+            self.status = 50
+            boy = getUser(self.maleId)
+            girl = getUser(self.femaleId)
+            boy.status = 100
+            girl.status = 100
+            boy.save()
+            girl.save()
         # 處理 replyMessage
         replytext = tup[STAT][1]
         if STAT in (1, 2, 3, 4):
