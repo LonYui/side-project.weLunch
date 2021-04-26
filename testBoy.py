@@ -86,6 +86,20 @@ class TestFunction(unittest.TestCase):
         t_date.delete()
         t_member.delete()
 
+    def test_等待約會狀態(self):
+        t_member = cluster.Male(userId=inspect.currentframe().f_code.co_name, status=110).save()
+        t_date = cluster.Date(femaleId=inspect.currentframe().f_code.co_name + "G",
+                              maleId=inspect.currentframe().f_code.co_name, status=30).save()
+        dict = {}
+        self.messageRequestDict(dict, "午安啊～", inspect.currentframe().f_code.co_name)
+        response = self.client.post('/', json=dict)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data.decode("utf-8"), "時間還沒到，不能跟對象聊天唷")
+        t_date = cluster.getDate(inspect.currentframe().f_code.co_name + "G")
+        self.assertEqual(t_date.status, 30)
+        t_date.delete()
+        t_member.delete()
+
     def test_聊天2(self):
         t_member = cluster.Male(userId=inspect.currentframe().f_code.co_name, status=110).save()
         t_date = cluster.Date(femaleId=inspect.currentframe().f_code.co_name + "G",
