@@ -58,6 +58,18 @@ class TestFunction(unittest.TestCase):
         self.assertEqual(t_date.status,21)
         t_date.delete()
         t_member.delete()
+    def test_聊天1(self):
+        t_member = cluster.Male(userId=inspect.currentframe().f_code.co_name, status=110).save()
+        t_date = cluster.Date(femaleId=inspect.currentframe().f_code.co_name + "G",
+                     maleId=inspect.currentframe().f_code.co_name , status=20).save()
+        dict = {}
+        self.messageRequestDict(dict, "午安啊～",inspect.currentframe().f_code.co_name)
+        response = self.client.post('/', json=dict)
+        self.assertEqual(response.status_code, 200)
+        t_date = cluster.getDate(inspect.currentframe().f_code.co_name+"G")
+        self.assertEqual(t_date.status,20)
+        t_date.delete()
+        t_member.delete()
 
     def test_敲定時間地點(self):
         t_member = cluster.Male(userId=inspect.currentframe().f_code.co_name, status=110).save()
@@ -71,6 +83,19 @@ class TestFunction(unittest.TestCase):
         t_date = cluster.getDate(inspect.currentframe().f_code.co_name)
         self.assertEqual(t_date.inlineRes,"https://inline.app/reservations/-MYykIBSxYNLzWg4ZgtI")
         self.assertEqual(t_date.status, 30)
+        t_date.delete()
+        t_member.delete()
+
+    def test_聊天2(self):
+        t_member = cluster.Male(userId=inspect.currentframe().f_code.co_name, status=110).save()
+        t_date = cluster.Date(femaleId=inspect.currentframe().f_code.co_name + "G",
+                              maleId=inspect.currentframe().f_code.co_name, status=40).save()
+        dict = {}
+        self.messageRequestDict(dict, "好想你唷", inspect.currentframe().f_code.co_name)
+        response = self.client.post('/', json=dict)
+        self.assertEqual(response.status_code, 200)
+        t_date = cluster.getDate(inspect.currentframe().f_code.co_name + "G")
+        self.assertEqual(t_date.status, 40)
         t_date.delete()
         t_member.delete()
 

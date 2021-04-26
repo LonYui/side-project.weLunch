@@ -105,8 +105,37 @@ class TestFunction(unittest.TestCase):
         t_date.delete()
         t_member.delete()
 
+    def test_沒有人約(self):
+        t_member = cluster.Female(userId=inspect.currentframe().f_code.co_name, status=110).save()
+        cluster.Date(femaleId=inspect.currentframe().f_code.co_name, status=10).save()
+        dict = {}
+        self.messageRequestDict(dict, "隨便輸入訊息", inspect.currentframe().f_code.co_name)
+        response = self.client.post('/', json=dict)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data.decode("utf-8"), "無人邀請")
+        t_date = cluster.getDate(inspect.currentframe().f_code.co_name)
+        self.assertEqual(t_date.status,10)
+        t_date.delete()
+        t_member.delete()
+
+    def test_有人約(self):
+        t_member1 = cluster.Female(userId=inspect.currentframe().f_code.co_name, status=110).save()
+        t_member2 = cluster.Male(userId=inspect.currentframe().f_code.co_name+"M", status=110).save()
+        cluster.Date(femaleId=inspect.currentframe().f_code.co_name, status=11,invList=[inspect.currentframe().f_code.co_name+"M"]).save()
+        dict = {}
+        self.messageRequestDict(dict, "隨便輸入訊息", inspect.currentframe().f_code.co_name)
+        response = self.client.post('/', json=dict)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data.decode("utf-8"), "有人邀約了")
+        t_date = cluster.getDate(inspect.currentframe().f_code.co_name)
+        self.assertEqual(t_date.status,11)
+        t_date.delete()
+        t_member1.delete()
+        t_member2.delete()
+
     def test_選擇約會對象(self):
-        t_member = cluster.Female(userId=inspect.currentframe().f_code.co_name,status=110).save()
+        t_member1 = cluster.Female(userId=inspect.currentframe().f_code.co_name,status=110).save()
+        t_member2 = cluster.Male(userId=inspect.currentframe().f_code.co_name+"M",status=110).save()
         cluster.Date(femaleId=inspect.currentframe().f_code.co_name,
                      invList=[inspect.currentframe().f_code.co_name+"M"],status=11).save()
         dict = {}
@@ -119,7 +148,8 @@ class TestFunction(unittest.TestCase):
         self.assertEqual(t_date.maleId,inspect.currentframe().f_code.co_name+"M")
         self.assertNotIn(inspect.currentframe().f_code.co_name+"M" , t_date.invList)
         t_date.delete()
-        t_member.delete()
+        t_member1.delete()
+        t_member2.delete()
 
     def messageRequestDict(self,dict,text,user_id_token):
         """package是下劃線,json格式應為駝峰"""
