@@ -23,16 +23,16 @@ def webhook():
     if Etype == "postback":
         status = user.status
         if status==100:
-            reqData:Final = rJson[0]["postback"]["data"]
+            reqstext:Final = rJson[0]["postback"]["data"]
             user.status+=10
-            date = cluster.getDate(reqData["userId"])
+            date = cluster.getDate(reqstext)
             replytext = date.ST_Dstatus(reqstext=userId,userId=userId,token=token,client=client)
             user.save()
             return replytext
         elif status==110:
-            reqData:Final = rJson[0]["postback"]["data"]
+            reqstext:Final = rJson[0]["postback"]["data"]
             date = cluster.getDate(userId)
-            replytext = date.ST_Dstatus(reqstext=reqData["userId"],userId=userId,token=token,client=client)
+            replytext = date.ST_Dstatus(reqstext=reqstext,userId=userId,token=token,client=client)
             return replytext
 
     # status 1 ~ 2
@@ -206,7 +206,7 @@ def webhook():
             colLis = []
             for dating in cluster.Date.objects(status==10):
                 girl = cluster.getUser(dating.femaleId)
-                action = actions.PostbackAction(data="userId="+dating.femaleId,label="邀請她",display_text="邀請她")
+                action = actions.PostbackAction(data=dating.femaleId,label="邀請她",display_text="邀請她")
                 column = template.CarouselColumn(actions=[action],
                                                  title = str( cluster.calculate_age(girl.birthDate) )+","+girl.nickName,
                                                  text = "我在"+dating.workDist+"上班，喜歡"+dating.eatype+"，拜"+str(dating.dateDate.isoweekday() )+"有空嗎？",
@@ -219,6 +219,26 @@ def webhook():
             return replytext
     elif status==110:
         date = cluster.getDate(userId)
+        if reqstext=="觀看邀請名單":
+            colLis = []
+            for id in date.invList:
+                user = cluster.getUser(id)
+                text = "個性" + user.personality + "喜歡" + user.hobit + "的" + \
+                       cluster.getConstellation(user.birthDate.month, user.birthDate.day) + "男孩"
+                if user.__class__.__name__ == "Male":
+                    text += "男孩"
+                elif user.__class__.__name__ == "Female":
+                    text += "女孩"
+                action = actions.PostbackAction(data=id,label="選他",display_text="選他")
+                column = template.CarouselColumn(title=user.nickName,
+                                                 text=text,
+                                                 thumbnail_image_url=user.pictUri,
+                                                 actions=[action])
+                colLis.append(column)
+            carouse = template.CarouselTemplate(columns=colLis)
+            if token != userId: client.reply_message(token, [template.TemplateSendMessage(template=carouse,
+                                                                                          alt_text="broke")])
+            return ""
         replytext = date.ST_Dstatus(reqstext=reqstext,userId=userId,token=token,client=client)
         return replytext
     user.save()

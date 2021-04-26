@@ -110,7 +110,7 @@ class TestFunction(unittest.TestCase):
         cluster.Date(femaleId=inspect.currentframe().f_code.co_name,
                      invList=[inspect.currentframe().f_code.co_name+"M"],status=11).save()
         dict = {}
-        self.postBackRequestDict(dict, {"userId":inspect.currentframe().f_code.co_name+"M"}, inspect.currentframe().f_code.co_name)
+        self.postBackRequestDict(dict, inspect.currentframe().f_code.co_name+"M", inspect.currentframe().f_code.co_name)
         response = self.client.post('/', json=dict)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data.decode("utf-8"), "開放 12hr 聊天")

@@ -33,7 +33,7 @@ class TestFunction(unittest.TestCase):
         cluster.Male(userId=inspect.currentframe().f_code.co_name, status=100).save()
         cluster.Date(femaleId=inspect.currentframe().f_code.co_name+"G", status=10).save()
         dict = {}
-        self.postBackRequestDict(dict, {"userId":inspect.currentframe().f_code.co_name+"G"}, inspect.currentframe().f_code.co_name)
+        self.postBackRequestDict(dict, inspect.currentframe().f_code.co_name+"G", inspect.currentframe().f_code.co_name)
         response = self.client.post('/', json=dict)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data.decode("utf-8"), "成功邀約，對象會在24小時內回覆")
@@ -92,6 +92,7 @@ class TestFunction(unittest.TestCase):
         t_memeber = cluster.getUser(inspect.currentframe().f_code.co_name+"G")
         self.assertEqual(t_memeber.status, 100)
         t_memeber.delete()
+        t_date.delete()
 
     def messageRequestDict(self,dict,text,user_id_token):
         """package是下劃線,json格式應為駝峰"""
