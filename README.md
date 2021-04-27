@@ -36,7 +36,7 @@
 
 ### 使用說明書
 
-
+<img src="https://i.imgur.com/OBkbD0J.png" width="100" height="100">
 
 1. 掃秒加入好友 weDateApp
 2. 註冊好友輸入基本資料、照片url 
