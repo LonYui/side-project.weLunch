@@ -21,7 +21,7 @@
   - line
   - heroku
 - 使用策略模式處理累贅is elif判斷 commit [ticket](https://github.com/d5269357812/weLunch/commit/fb2677aeab5f84953f345599be7a5d0839199aa0)
-- 規格撰寫 - 索引頁、多用圖片、形容問題而非解答。[規格書pdf](https://www.docdroid.net/oHmDYOU/seim-welunchbot-270421-1432-pdf#page=4)
+- 規格撰寫 - 索引頁、多用圖片、形容問題而非解答。[規格書pdf](https://www.docdroid.net/oHmDYOU/seim-welunchbot-270421-1432-pdf#page=1)
 - 壓力測試 - 常用 api 使用 locust測試（TODO）
 
 <h1 id="b">bot 介紹</h1>
