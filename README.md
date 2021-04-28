@@ -12,17 +12,17 @@
 
 <h1 id="a">使用技術</h1>
 
-- TDD - 用 unittest 寫驗收測試再開發程式
+- TDD - 寫[驗收測試](https://github.com/d5269357812/weLunch/commit/2482590ba4906598c14bf41a31fa077d7d247dff)，再[開發程式](https://github.com/d5269357812/weLunch/commit/648945a3dba1249a76174e904bc170e6276c3e49)
 - git 
-  - write commit message with type,title and body by [this](https://wadehuanglearning.blogspot.com/2019/05/commit-commit-commit-why-what-commit.html) rule.
+  - write commit message with type,title and body ,see [logs](https://github.com/d5269357812/weLunch/commits/master)
   - use issue track probleam
 - flask - use mongoengine do orm ,物件導向程式設計
 - 3方 api 串接
   - line
   - heroku
 - 使用策略模式處理累贅is elif判斷 commit [ticket](https://github.com/d5269357812/weLunch/commit/fb2677aeab5f84953f345599be7a5d0839199aa0)
+- 規格撰寫 - 索引頁、多用圖片、形容問題而非解答。[規格書pdf](https://www.docdroid.net/oHmDYOU/seim-welunchbot-270421-1432-pdf#page=4)
 - 壓力測試 - 常用 api 使用 locust測試（TODO）
-- 規格撰寫 - 索引頁、多用圖片、形容問題而非解答。參照[此](https://stackoverflow.com/questions/379371/what-makes-a-good-spec)
 
 <h1 id="b">bot 介紹</h1>
 
