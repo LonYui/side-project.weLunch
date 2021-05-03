@@ -1,3 +1,4 @@
+from datetime import date as dt
 import mongoengine as me,re
 from mongoengine import connect
 from datetime import  date as DT,timedelta
@@ -19,6 +20,102 @@ class Male(me.Document):
     status = me.IntField()
     meta = {'collection': 'Male'}
 
+    def signup(self,reqsT,client,token):
+        """
+        只處理 status += 1 的流程
+        status not change 和 status -=1 情況當作例外處理 （regex , 6, 13等 共3處）
+        """
+        tup =(
+            (),(),(),
+            # status3
+            (None,"請輸入<名字>"),
+            ("nickName","請輸入<生日> (yyyy-mm-dd)"),
+            ("birthDate",None,("沒錯","剛剛手滑了")),
+            (None,"請輸入<個人特質>"),
+            ("personality","請輸入<興趣>"),
+            ("hobit","請輸入<職業>"),
+            ("job","請輸入<照片url>"),
+            # status10
+            ("pictUri","請輸入<信箱>"),
+            ("email","請輸入<電話>"),
+            ("phone","請輸入<驗證碼>，查看手機簡訊"),
+            (None,"最後確認，這樣資料正確嗎？",("沒錯",)),
+            (None,"待審核後就可以開始使用了"),
+        )
+        STAT = self.status
+
+        if tup[STAT][0]:
+            m = re.search("<(\\S+)>", reqsT)
+            if not m:
+                """status not change"""
+                if token != self.userId:
+                    client.reply_message(
+                        token, TextSendMessage(text="偵測不到<>，請再試一次"))
+                return "偵測不到<>，請再試一次"
+            else:
+                reqsT = m.groups()[0]
+        if STAT in (6,) and reqsT in ["不是", "剛剛手滑了", "n"]:
+            """status -1 """
+            self.status -= 1
+            self.birthDate = None
+            self.save()
+            if token != self.userId:
+                client.reply_message(token, TextSendMessage(text="請輸入<生日> (yyyy-mm-dd)"))
+            return "請輸入<生日> (yyyy-mm-dd)"
+        if STAT in (13,) and reqsT not in ["iampassword",]:
+            """status -1 """
+            self.status -= 1
+            self.phone = None
+            self.save()
+            if token != self.userId:
+                client.reply_message(token, TextSendMessage(text="錯誤，請再輸入一次手機"))
+            return "錯誤，請再輸入一次手機"
+
+        # 處理assign Value
+
+        if STAT == 5:
+            reqsT = dt.fromisoformat(reqsT)
+
+        attr = tup[STAT][0]
+        if attr :setattr(self, attr, reqsT)
+        # 處理 status 變換
+        self.status += 1
+        # 處理 replyMessage sendmesg
+        replyT,sendMsg = tup[STAT][1],TextSendMessage(text=tup[STAT][1])
+        if STAT == 5:
+            replyT = "您是" + self.birthDate.isoformat() \
+                     + "的" + getConstellation(
+                self.birthDate.month, self.birthDate.day)
+            if self.__class__.__name__ == "Male":
+                replyT += "男孩嗎？"
+            elif self.__class__.__name__ == "Female":
+                replyT += "女孩嗎？"
+
+            action1 = actions.MessageAction(text=tup[STAT][2][0], label=tup[STAT][2][0])
+            action2 = actions.MessageAction(text=tup[STAT][2][1], label=tup[STAT][2][1])
+            column = template.CarouselColumn(
+                text=replyT, actions=[action1, action2])
+            carouse = template.CarouselTemplate(columns=[column])
+            sendMsg = [template.TemplateSendMessage(template=carouse,alt_text="broke")]
+        elif STAT == 13:
+            introT = "個性" + self.personality \
+                   + "喜歡" + self.hobit + "的" + \
+                   getConstellation(
+                       self.birthDate.month, self.birthDate.day) + "男孩"
+            if self.__class__.__name__ == "Male":
+                introT += "男孩"
+            elif self.__class__.__name__ == "Female":
+                introT += "女孩"
+            action = actions.MessageAction(text=tup[STAT][2][0], label=tup[STAT][2][0])
+            column = template.CarouselColumn(
+                title=self.nickName, text=introT,
+                thumbnail_image_url=self.pictUri, actions=[action])
+            carouse = template.CarouselTemplate(columns=[column])
+            sendMsg = [TextSendMessage(text=replyT),template.TemplateSendMessage(template=carouse,alt_text="break")]
+        self.save()
+        if token != self.userId:
+            client.reply_message(token, sendMsg)
+        return replyT
 class Female(me.Document):
     nickName = me.StringField()
     birthDate = me.DateField()
@@ -72,7 +169,7 @@ class Date(me.Document):
     status = me.IntField()
     meta = {'collection': 'Date'}
 
-    def ST_Dstatus(self, reqstext, userId, token, client):
+    def ST_Dstatus(self, reqsT, userId, token, client):
         tup = ((),
                ("workDist", "幾點開始午休呢", ("十二點", "十二點半", "一點")),
                ("lunchBreakT", "午休時間很長嗎？", ("普通，一小", "還行，一小半", "很長，兩小")),
@@ -94,43 +191,43 @@ class Date(me.Document):
 
         # 處理assign Value
         if  STAT== 3:
-            reqstext = reqstext[3:]
+            reqsT = reqsT[3:]
         elif STAT == 5:
-            if reqstext == "明天":
-                reqstext = DT.today() + timedelta(days=1)
-            elif reqstext == "後天":
-                reqstext = DT.today() + timedelta(days=2)
-            elif reqstext == "大後天":
-                reqstext = DT.today() + timedelta(days=3)
-        elif STAT in (10,11) and getUser(reqstext) is None:
-            reqstext = None
+            if reqsT == "明天":
+                reqsT = DT.today() + timedelta(days=1)
+            elif reqsT == "後天":
+                reqsT = DT.today() + timedelta(days=2)
+            elif reqsT == "大後天":
+                reqsT = DT.today() + timedelta(days=3)
+        elif STAT in (10,11) and getUser(reqsT) is None:
+            reqsT = None
         elif STAT ==30:
-            reqstext = None
+            reqsT = None
         elif STAT ==21:
-            m = re.search("<(\S+)>", reqstext)
+            m = re.search("<(\S+)>", reqsT)
             if not m:
                 if token != userId: client.reply_message(token, TextSendMessage(text="偵測不到<>，請再試一次"))
                 return "偵測不到<>，請再試一次"
-            reqstext = m.groups()[0]
+            reqsT = m.groups()[0]
         else:pass
         attr = tup[STAT][0]
-        if attr is None or reqstext is None:pass
+        if attr is None or reqsT is None:pass
         elif attr == 'invList':
-            self[attr].append(reqstext)
+            self[attr].append(reqsT)
         elif attr == 'maleId':
-            self.invList.remove(reqstext)
-            setattr(self, attr, reqstext)
+            self.invList.remove(reqsT)
+            setattr(self, attr, reqsT)
         else:
-            setattr(self, attr, reqstext)
+            setattr(self, attr, reqsT)
 
         # 處理 status 變換
         if STAT in (1,2,3,4):self.status += 1
         elif STAT == 5:self.status = 10
-        elif STAT == 10 and getUser(reqstext) is not None:self.status += 1
-        elif STAT == 11 and  getUser(reqstext) is not None:self.status = 20
-        elif STAT == 20 and reqstext == "討論好餐廳和時間了":self.status += 1
+        elif STAT == 10 and getUser(reqsT) is not None:self.status += 1
+        elif STAT == 11 and  getUser(reqsT) is not None:self.status = 20
+        elif STAT == 20 and reqsT == "討論好餐廳和時間了":self.status += 1
         elif STAT == 21:self.status = 30
-        elif STAT == 40 and reqstext == "我出發了":
+        elif STAT == 40 and reqsT == "我出發了":
             self.status = 50
             boy = getUser(self.maleId)
             girl = getUser(self.femaleId)
@@ -149,9 +246,9 @@ class Date(me.Document):
             carouse = template.CarouselTemplate(columns=[column])
             if token != userId: client.reply_message(token, [template.TemplateSendMessage(template=carouse,
                                                                                           alt_text="broke")])
-        elif STAT in(10,) and getUser(reqstext) is None:
+        elif STAT in(10,) and getUser(reqsT) is None:
             replytext = "無人邀請"
-        elif STAT in (11,) and getUser(reqstext) is None:
+        elif STAT in (11,) and getUser(reqsT) is None:
             replytext = "有人邀約了"
             action = actions.MessageAction(text="觀看邀請名單", label="觀看邀請名單")
             column = template.CarouselColumn(text=replytext, actions=[action])
@@ -166,7 +263,7 @@ class Date(me.Document):
             if token != userId: client.reply_message(token, TextSendMessage(text=replytext))
             if token != userId: client.push_message(self.maleId, [template.TemplateSendMessage(template=carouse,
                                                                                           alt_text="broke")])
-        elif STAT in (20,40) and reqstext not in ("討論好餐廳和時間了","我出發了"):
+        elif STAT in (20,40) and reqsT not in ("討論好餐廳和時間了","我出發了"):
             to,prefix =("","")
             if userId==self.maleId:
                 to=self.femaleId
@@ -174,8 +271,8 @@ class Date(me.Document):
             else:
                 to=self.maleId
                 prefix = "👩:"
-            if token != userId: client.push_message(to,TextSendMessage(text=prefix+reqstext))
-            return reqstext
+            if token != userId: client.push_message(to,TextSendMessage(text=prefix+reqsT))
+            return reqsT
         elif STAT ==20:
             to, prefix = ("", "")
             if userId == self.maleId:
