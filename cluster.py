@@ -169,27 +169,14 @@ class Date(me.Document):
     status = me.IntField()
     meta = {'collection': 'Date'}
 
-    def ST_Dstatus(self, reqsT, userId, token, client):
-        tup = ((),
-               ("workDist", "幾點開始午休呢", ("十二點", "十二點半", "一點")),
-               ("lunchBreakT", "午休時間很長嗎？", ("普通，一小", "還行，一小半", "很長，兩小")),
-               ("lunchBreakL", "喜歡吃韓式還是日式", ("日式", "韓式", "港式")),
-               ("eatype", "那約個明天、後天", ("明天", "後天", "大後天")),
-               ("dateDate", "成功發起約會"),(),(),(),(),
-               # index:10
-               ("invList","成功邀約，對象會在24小時內回覆"),
-               ("maleId","開放 12hr 聊天",("討論好餐廳和時間了",)),(),(),(),(),(),(),(),(),
-                # index:20
-               (None,"請輸入<inLIne定位資訊>",),
-               ("inlineRes","關閉聊天，約會前12hr會開啟"),(),(),(),(),(),(),(),(),
-               (None,None), (), (), (), (), (), (), (), (), (),
-               # index:40
-               (None,"祝您約會順利")
-
+    def assignValue(self, reqsT, userId, token, client):
+        tup = ("","workDist","lunchBreakT","lunchBreakL","eatype","dateDate","","","","",
+               "invList","maleId","","","","","","","","",
+               None,"inlineRes","","","","","","","","",
+               None,"","","","","","","","","",
+               None,
                )
-        STAT  = self.status
-
-        # 處理assign Value
+        STAT = self.status
         if  STAT== 3:
             reqsT = reqsT[3:]
         elif STAT == 5:
@@ -210,7 +197,7 @@ class Date(me.Document):
                 return "偵測不到<>，請再試一次"
             reqsT = m.groups()[0]
         else:pass
-        attr = tup[STAT][0]
+        attr = tup[STAT]
         if attr is None or reqsT is None:pass
         elif attr == 'invList':
             self[attr].append(reqsT)
@@ -219,8 +206,11 @@ class Date(me.Document):
             setattr(self, attr, reqsT)
         else:
             setattr(self, attr, reqsT)
+        self.save()
+        return
 
-        # 處理 status 變換
+    def statusChange(self, reqsT):
+        STAT = self.status
         if STAT in (1,2,3,4):self.status += 1
         elif STAT == 5:self.status = 10
         elif STAT == 10 and getUser(reqsT) is not None:self.status += 1
@@ -236,44 +226,70 @@ class Date(me.Document):
             boy.save()
             girl.save()
         else:pass
-        # 處理 replyMessage
+        self.save()
+        return
+
+    def replyText(self, token, userId, reqsT, client):
+        tup = ((),
+               ("workDist", "幾點開始午休呢", ("十二點", "十二點半", "一點")),
+               ("lunchBreakT", "午休時間很長嗎？", ("普通，一小", "還行，一小半", "很長，兩小")),
+               ("lunchBreakL", "喜歡吃韓式還是日式", ("日式", "韓式", "港式")),
+               ("eatype", "那約個明天、後天", ("明天", "後天", "大後天")),
+               ("dateDate", "成功發起約會"),(),(),(),(),
+               # index:10
+               ("invList","成功邀約，對象會在24小時內回覆"),
+               ("maleId","開放 12hr 聊天",("討論好餐廳和時間了",)),(),(),(),(),(),(),(),(),
+                # index:20
+               (None,"請輸入<inLIne定位資訊>",),
+               ("inlineRes","關閉聊天，約會前12hr會開啟"),(),(),(),(),(),(),(),(),
+               (None,None), (), (), (), (), (), (), (), (), (),
+               # index:40
+               (None,"祝您約會順利")
+
+               )
+
+        STAT = self.status
         replytext = tup[STAT][1]
         if STAT in (1, 2, 3, 4):
-            action1 = actions.MessageAction(text=tup[STAT][2][0], label=tup[STAT][2][0])
-            action2 = actions.MessageAction(text=tup[STAT][2][1], label=tup[STAT][2][1])
-            action3 = actions.MessageAction(text=tup[STAT][2][2], label=tup[STAT][2][2])
-            column = template.CarouselColumn(text=replytext, actions=[action1, action2, action3])
+            action1 = actions.MessageAction(text=tup[STAT][2][0],
+                                            label=tup[STAT][2][0])
+            action2 = actions.MessageAction(text=tup[STAT][2][1],
+                                            label=tup[STAT][2][1])
+            action3 = actions.MessageAction(text=tup[STAT][2][2],
+                                            label=tup[STAT][2][2])
+            column = template.CarouselColumn(text=replytext,
+                                             actions=[action1, action2,
+                                                      action3])
             carouse = template.CarouselTemplate(columns=[column])
-            if token != userId: client.reply_message(token, [template.TemplateSendMessage(template=carouse,
-                                                                                          alt_text="broke")])
-        elif STAT in(10,) and getUser(reqsT) is None:
+            if token != userId: client.reply_message(token, [
+                template.TemplateSendMessage(template=carouse,
+                                             alt_text="broke")])
+        elif STAT in (10,) and getUser(reqsT) is None:
             replytext = "無人邀請"
         elif STAT in (11,) and getUser(reqsT) is None:
             replytext = "有人邀約了"
-            action = actions.MessageAction(text="觀看邀請名單", label="觀看邀請名單")
-            column = template.CarouselColumn(text=replytext, actions=[action])
+            action = actions.MessageAction(text="觀看邀請名單",
+                                           label="觀看邀請名單")
+            column = template.CarouselColumn(text=replytext,
+                                             actions=[action])
             carouse = template.CarouselTemplate(columns=[column])
-            if token != userId: client.reply_message(token, [template.TemplateSendMessage(template=carouse,
-                                                                                          alt_text="broke")])
+            if token != userId: client.reply_message(token, [
+                template.TemplateSendMessage(template=carouse,
+                                             alt_text="broke")])
             return replytext
         elif STAT in (11,):
-            action = actions.MessageAction(text=tup[STAT][2][0], label=tup[STAT][2][0])
-            column = template.CarouselColumn(text=replytext, actions=[action])
+            action = actions.MessageAction(text=tup[STAT][2][0],
+                                           label=tup[STAT][2][0])
+            column = template.CarouselColumn(text=replytext,
+                                             actions=[action])
             carouse = template.CarouselTemplate(columns=[column])
-            if token != userId: client.reply_message(token, TextSendMessage(text=replytext))
-            if token != userId: client.push_message(self.maleId, [template.TemplateSendMessage(template=carouse,
-                                                                                          alt_text="broke")])
-        elif STAT in (20,40) and reqsT not in ("討論好餐廳和時間了","我出發了"):
-            to,prefix =("","")
-            if userId==self.maleId:
-                to=self.femaleId
-                prefix = "👦:"
-            else:
-                to=self.maleId
-                prefix = "👩:"
-            if token != userId: client.push_message(to,TextSendMessage(text=prefix+reqsT))
-            return reqsT
-        elif STAT ==20:
+            if token != userId: client.reply_message(token,
+                                                     TextSendMessage(
+                                                         text=replytext))
+            if token != userId: client.push_message(self.maleId, [
+                template.TemplateSendMessage(template=carouse,
+                                             alt_text="broke")])
+        elif STAT in (20, 40) and reqsT not in ("討論好餐廳和時間了", "我出發了"):
             to, prefix = ("", "")
             if userId == self.maleId:
                 to = self.femaleId
@@ -281,14 +297,31 @@ class Date(me.Document):
             else:
                 to = self.maleId
                 prefix = "👩:"
-            if token != userId: client.push_message(to, TextSendMessage(text=prefix+"定好約會囉，約會那天再聊吧"))
-            if token != userId: client.reply_message(token, TextSendMessage(text=replytext))
-        elif STAT ==30:
+            if token != userId: client.push_message(to, TextSendMessage(
+                text=prefix + reqsT))
+            return reqsT
+        elif STAT == 20:
+            to, prefix = ("", "")
+            if userId == self.maleId:
+                to = self.femaleId
+                prefix = "👦:"
+            else:
+                to = self.maleId
+                prefix = "👩:"
+            if token != userId: client.push_message(to, TextSendMessage(
+                text=prefix + "定好約會囉，約會那天再聊吧"))
+            if token != userId: client.reply_message(token,
+                                                     TextSendMessage(
+                                                         text=replytext))
+        elif STAT == 30:
             replytext = "時間還沒到，不能跟對象聊天唷"
-            if token != userId: client.reply_message(token, TextSendMessage(text=replytext))
-        else :
-            if token != userId: client.reply_message(token, TextSendMessage(text=replytext))
-        self.save()
+            if token != userId: client.reply_message(token,
+                                                     TextSendMessage(
+                                                         text=replytext))
+        else:
+            if token != userId: client.reply_message(token,
+                                                     TextSendMessage(
+                                                         text=replytext))
         return replytext
 
 

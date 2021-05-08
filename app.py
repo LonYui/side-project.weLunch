@@ -1,5 +1,3 @@
-from re import search
-from datetime import date as dt
 from typing import Final
 from flask import Flask, request
 from linebot import LineBotApi
@@ -33,15 +31,25 @@ def webhook():
         if status == 100:
             reqsT: Final = rJson[0]["postback"]["data"]
             user.status += 10
-            date = cluster.getDate(reqsT)
-            replyT = date.ST_Dstatus(reqsT=userId, userId=userId,
-                                     token=token, client=client)
             user.save()
+            date = cluster.getDate(reqsT)
+            date.assignValue(
+                reqsT=userId, userId=userId,
+                token=token, client=client)
+            replyT = date.replyText(
+                reqsT=userId, userId=userId,
+                token=token, client=client)
+            date.statusChange(reqsT=userId)
         elif status == 110:
             reqsT: Final = rJson[0]["postback"]["data"]
             date = cluster.getDate(userId)
-            replyT = date.ST_Dstatus(reqsT=reqsT, userId=userId,
-                                     token=token, client=client)
+            date.assignValue(
+                reqsT=reqsT, userId=userId,
+                token=token, client=client)
+            replyT = date.replyText(
+                reqsT=reqsT, userId=userId,
+                token=token, client=client)
+            date.statusChange(reqsT=reqsT)
         return replyT
 
     # status 1 ~ 2
@@ -118,6 +126,7 @@ def webhook():
             replyT = "上班在哪一區呀？"
             cluster.Date(femaleId=user.userId, status=1).save()
             user.status += 10
+            user.save()
         elif reqsT == "觀看約會":
             colLis = []
             for dating in cluster.Date.objects(status == 10):
@@ -167,11 +176,14 @@ def webhook():
                     token, [template.TemplateSendMessage(
                         template=carouse, alt_text="broke")])
             return None
-        replyT = date.ST_Dstatus(
+        date.assignValue(
             reqsT=reqsT, userId=userId,
             token=token, client=client)
+        replyT = date.replyText(
+            reqsT=reqsT, userId=userId,
+            token=token, client=client)
+        date.statusChange(reqsT=reqsT)
         return replyT
-    user.save()
     if token != userId:
         client.reply_message(token, TextSendMessage(text=replyT))
     return replyT
