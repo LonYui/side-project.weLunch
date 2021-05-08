@@ -9,16 +9,10 @@ app = Flask(__name__)
 
 @app.route("/", methods=['POST'])
 def webhook():
-    """line api webhook"""
-    client = LineBotApi("""
-        jpkaZF4J41V3hTOT7kinpR16tTormHg0pKDpr5UJX6sOy
-        eIETiHnXOYveDupNa6Zk6KKE1B+zZSiKQJ8qSrGVCeDD2
-        EEsRzXeOEImKtQfrU1UjvLysgAvcRoGpMVos79emD+gZT
-        3uJvF1O2pLJIQkgdB04t89/1O/w1cDnyilFU=
-        """)
+    client = LineBotApi("jpkaZF4J41V3hTOT7kinpR16tTormHg0pKDpr5UJX6sOyeIETiHnXOYveDupNa6Zk6KKE1B+zZSiKQJ8qSrGVCeDD2EEsRzXeOEImKtQfrU1UjvLysgAvcRoGpMVos79emD+gZT3uJvF1O2pLJIQkgdB04t89/1O/w1cDnyilFU=")
     rJson = request.json["events"]
     if not rJson:
-        return None
+        return ""
     eventType: Final = rJson[0]["type"]
     if eventType not in ["postback", "message"]:
         return
@@ -122,60 +116,16 @@ def webhook():
         replyT = user.signup(reqsT=reqsT,client=client,token=token)
 
     elif status == 100:
-        if reqsT == "發起約會":
-            replyT = "上班在哪一區呀？"
-            cluster.Date(femaleId=user.userId, status=1).save()
-            user.status += 10
-            user.save()
-        elif reqsT == "觀看約會":
-            colLis = []
-            for dating in cluster.Date.objects(status == 10):
-                girl = cluster.getUser(dating.femaleId)
-                action = actions.PostbackAction(
-                    data=dating.femaleId, label="邀請她",
-                    display_text="邀請她")
-                column = template.CarouselColumn(
-                    actions=[action],
-                    title=str(cluster.calculate_age(girl.birthDate))
-                    + "," + girl.nickName,
-                    text="我在" + dating.workDist + "上班，喜歡"
-                         + dating.eatype + "，拜"
-                         + str(dating.dateDate.isoweekday()) + "有空嗎？",
-                    thumbnail_image_url=girl.pictUri,)
-                colLis.append(column)
-            carouse = template.CarouselTemplate(columns=colLis)
-            if token != userId:
-                client.reply_message(
-                    token, [template.TemplateSendMessage(
-                        template=carouse, alt_text="broke")])
-            return replyT
+        if reqsT == "發起約會" and not user.isMale():
+            replyT = user.createDate()
+        elif reqsT == "觀看約會" and user.isMale():
+            user.readDate(token=token,userId=userId,client=client)
+            return
     elif status == 110:
         date = cluster.getDate(userId)
-        if reqsT == "觀看邀請名單":
-            colLis = []
-            for invId in date.invList:
-                user = cluster.getUser(invId)
-                text = "個性" + user.personality \
-                       + "喜歡" + user.hobit + "的" + \
-                       cluster.getConstellation(
-                           user.birthDate.month, user.birthDate.day) \
-                       + "男孩"
-                if user.__class__.__name__ == "Male":
-                    text += "男孩"
-                elif user.__class__.__name__ == "Female":
-                    text += "女孩"
-                action = actions.PostbackAction(data=invId, label="選他",
-                                                display_text="選他")
-                column = template.CarouselColumn(
-                    title=user.nickName, text=text,
-                    thumbnail_image_url=user.pictUri, actions=[action])
-                colLis.append(column)
-            carouse = template.CarouselTemplate(columns=colLis)
-            if token != userId:
-                client.reply_message(
-                    token, [template.TemplateSendMessage(
-                        template=carouse, alt_text="broke")])
-            return None
+        if reqsT == "觀看邀請名單" and not user.isMale():
+            user.readInvList(token=token,userId=userId,client=client)
+            return ""
         date.assignValue(
             reqsT=reqsT, userId=userId,
             token=token, client=client)

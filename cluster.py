@@ -5,21 +5,15 @@ from datetime import  date as DT,timedelta
 from linebot.models import actions,template,TextSendMessage
 
 connect(host ="mongodb+srv://Tsung:d39105648@restaurant.m9bx2.mongodb.net/myFirstDatabase?retryWrites=true&w=majority" )
-
-class Male(me.Document):
-    nickName = me.StringField()
-    birthDate = me.DateField()
-    personality = me.StringField()
-    hobit = me.StringField(max_length=20)
-    job = me.StringField()
-    pictUri = me.URLField()
-    email = me.StringField()
-    phone = me.StringField()
-
-    userId = me.StringField(unique=True)
-    status = me.IntField()
-    meta = {'collection': 'Male'}
-
+class Member(me.Document):
+    meta = {
+        'abstract': True,
+    }
+    def isMale(self):
+        if self.__class__.__name__ == "Male":
+            return True
+        elif self.__class__.__name__ == "Female":
+            return False
     def signup(self,reqsT,client,token):
         """
         只處理 status += 1 的流程
@@ -86,9 +80,9 @@ class Male(me.Document):
             replyT = "您是" + self.birthDate.isoformat() \
                      + "的" + getConstellation(
                 self.birthDate.month, self.birthDate.day)
-            if self.__class__.__name__ == "Male":
+            if self.isMale():
                 replyT += "男孩嗎？"
-            elif self.__class__.__name__ == "Female":
+            else:
                 replyT += "女孩嗎？"
 
             action1 = actions.MessageAction(text=tup[STAT][2][0], label=tup[STAT][2][0])
@@ -102,9 +96,9 @@ class Male(me.Document):
                    + "喜歡" + self.hobit + "的" + \
                    getConstellation(
                        self.birthDate.month, self.birthDate.day) + "男孩"
-            if self.__class__.__name__ == "Male":
+            if self.isMale():
                 introT += "男孩"
-            elif self.__class__.__name__ == "Female":
+            else:
                 introT += "女孩"
             action = actions.MessageAction(text=tup[STAT][2][0], label=tup[STAT][2][0])
             column = template.CarouselColumn(
@@ -116,7 +110,46 @@ class Male(me.Document):
         if token != self.userId:
             client.reply_message(token, sendMsg)
         return replyT
-class Female(me.Document):
+
+class Male(Member):
+    nickName = me.StringField()
+    birthDate = me.DateField()
+    personality = me.StringField()
+    hobit = me.StringField(max_length=20)
+    job = me.StringField()
+    pictUri = me.URLField()
+    email = me.StringField()
+    phone = me.StringField()
+
+    userId = me.StringField(unique=True)
+    status = me.IntField()
+    meta = {'collection': 'Male'}
+
+    def readDate(self,token,userId,client):
+        """觀看約會"""
+        colLis = []
+        for dating in Date.objects(status = 10):
+            girl = getUser(dating.femaleId)
+            action = actions.PostbackAction(
+                data=dating.femaleId, label="邀請她",
+                display_text="邀請她")
+            column = template.CarouselColumn(
+                actions=[action],
+                title=str(calculate_age(girl.birthDate))
+                      + "," + girl.nickName,
+                text="我在" + dating.workDist + "上班，喜歡"
+                     + dating.eatype + "，拜"
+                     + str(dating.dateDate.isoweekday()) + "有空嗎？",
+                thumbnail_image_url=girl.pictUri, )
+            colLis.append(column)
+        carouse = template.CarouselTemplate(columns=colLis)
+        if token != userId:
+            client.reply_message(
+                token, [template.TemplateSendMessage(
+                    template=carouse, alt_text="broke")])
+        return
+
+class Female(Member):
     nickName = me.StringField()
     birthDate = me.DateField()
     personality = me.StringField()
@@ -129,6 +162,39 @@ class Female(me.Document):
     userId = me.StringField(unique=True)
     status = me.IntField()
     meta = {'collection': 'Female'}
+
+    def createDate(self):
+        """發起約會"""
+        replyT = "上班在哪一區呀？"
+        Date(femaleId=self.userId, status=1).save()
+        self.status += 10
+        self.save()
+        return replyT
+
+    def readInvList(self,token,userId,client):
+        """觀看邀請名單"""
+        colLis = []
+        date = getDate(self.userId)
+        for invId in date.invList:
+            user = getUser(invId)
+            text = "個性" + user.personality \
+                   + "喜歡" + user.hobit + "的" + \
+                   getConstellation(
+                       user.birthDate.month, user.birthDate.day) \
+                   + "男孩"
+            action = actions.PostbackAction(data=invId, label="選他",
+                                            display_text="選他")
+            column = template.CarouselColumn(
+                title=user.nickName, text=text,
+                thumbnail_image_url=user.pictUri, actions=[action])
+            colLis.append(column)
+        carouse = template.CarouselTemplate(columns=colLis)
+        if token != userId:
+            client.reply_message(
+                token, [template.TemplateSendMessage(
+                    template=carouse, alt_text="broke")])
+        return
+
 
 def getUser(userId):
     qMale = Male.objects(userId = userId)
