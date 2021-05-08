@@ -346,7 +346,7 @@ class TestFunction(unittest.TestCase):
         cluster.Male(userId=inspect.currentframe().f_code.co_name, status=13,nickName="阿諺",personality="開朗",hobit="做愛",pictUri="https://i.imgur.com/9FEddMc.jpg",birthDate="1999-03-22").save()
         validateCode = "iampassword"
         dict = {}
-        self.messageRequestDict(dict, "<" + validateCode + ">", inspect.currentframe().f_code.co_name)
+        self.messageRequestDict(dict, validateCode, inspect.currentframe().f_code.co_name)
         response = self.client.post('/', json=dict)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data.decode("utf-8"), "最後確認，這樣資料正確嗎？")
@@ -357,7 +357,7 @@ class TestFunction(unittest.TestCase):
         cluster.Male(userId=inspect.currentframe().f_code.co_name, status=13).save()
         validateCode = "錯誤密碼"
         dict = {}
-        self.messageRequestDict(dict, "<" + validateCode + ">", inspect.currentframe().f_code.co_name)
+        self.messageRequestDict(dict, validateCode, inspect.currentframe().f_code.co_name)
         response = self.client.post('/', json=dict)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data.decode("utf-8"), "錯誤，請再輸入一次手機")
