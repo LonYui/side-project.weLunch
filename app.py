@@ -112,19 +112,19 @@ def webhook():
         return replyT
     status = user.status
     # status 3 ~ 14
-    if status in range(3,15):
-        replyT = user.signup(reqsT=reqsT,client=client,token=token)
+    if status in range(3, 15):
+        replyT = user.signup(reqsT=reqsT, client=client, token=token)
 
     elif status == 100:
         if reqsT == "發起約會" and not user.isMale():
             replyT = user.createDate()
         elif reqsT == "觀看約會" and user.isMale():
-            user.readDate(token=token,userId=userId,client=client)
+            user.readDate(token=token, userId=userId, client=client)
             return
     elif status == 110:
         date = cluster.getDate(userId)
         if reqsT == "觀看邀請名單" and not user.isMale():
-            user.readInvList(token=token,userId=userId,client=client)
+            user.readInvList(token=token, userId=userId, client=client)
             return ""
         date.assignValue(
             reqsT=reqsT, userId=userId,
