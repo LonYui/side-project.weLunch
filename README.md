@@ -1,6 +1,6 @@
 # 摘要
 
-參考 wemovie bot，午餐約會 bot 做為後端展示作品,  練習 Tdd 順便學 flask。
+參考 Let's movie，午餐約會 bot 做為後端展示作品,  練習 Tdd 順便學 flask。
 
 # 索引
 
