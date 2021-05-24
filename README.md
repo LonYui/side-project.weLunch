@@ -23,6 +23,7 @@
 - 使用策略模式處理累贅 is elif 判斷 commit [ticket](https://github.com/d5269357812/weLunch/commit/fb2677aeab5f84953f345599be7a5d0839199aa0)
 - 規格撰寫 - 索引頁、多用圖片、形容問題而非解答。[規格書 pdf](https://www.docdroid.net/oHmDYOU/seim-welunchbot-270421-1432-pdf#page=1)
 - 壓力測試 - 常用 api 使用 locust 測試（TODO）
+- style - use splint check pep8
 
 <h1 id="b">bot 介紹</h1>
 
