@@ -2,14 +2,14 @@ from typing import Final
 from flask import Flask, request
 from linebot import LineBotApi
 from linebot.models import TextSendMessage, template, actions
-import cluster
+import cluster,os
 
 app = Flask(__name__)
 
 
 @app.route("/", methods=['POST'])
 def webhook():
-    client = LineBotApi("jpkaZF4J41V3hTOT7kinpR16tTormHg0pKDpr5UJX6sOyeIETiHnXOYveDupNa6Zk6KKE1B+zZSiKQJ8qSrGVCeDD2EEsRzXeOEImKtQfrU1UjvLysgAvcRoGpMVos79emD+gZT3uJvF1O2pLJIQkgdB04t89/1O/w1cDnyilFU=")
+    client = LineBotApi(os.environ['lineKey'])
     rJson = request.json["events"]
     if not rJson:
         return ""

@@ -1,10 +1,10 @@
+import os
 from datetime import date as dt
 import mongoengine as me,re
 from mongoengine import connect
 from datetime import  date as DT,timedelta
 from linebot.models import actions,template,TextSendMessage
-
-connect(host ="mongodb+srv://Tsung:d39105648@restaurant.m9bx2.mongodb.net/myFirstDatabase?retryWrites=true&w=majority" )
+connect(host =os.environ['db'] )
 class Member(me.Document):
     meta = {
         'abstract': True,
