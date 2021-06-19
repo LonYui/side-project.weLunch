@@ -94,12 +94,36 @@ def webhook():
         elif reqsT in ["女生", "女"]:
             cluster.Female(status=3, userId=userId).save()
             replyT = "注意：需用<>標記訊息"
+        elif reqsT in ["測試帳號男"]:
+            ming = cluster.Male.objects(nickName="小明",phone="test123")[0]
+            ming.userId=userId
+            ming.save()
+            replyT = "設置完成"
+        elif reqsT in ["測試帳號女"]:
+            mei = cluster.Female.objects(nickName="小美",phone="test123")[0]
+            mei.userId=userId
+            mei.save()
+            replyT = "設置完成"
+        elif reqsT == "快速使用(測試用)":
+            replyT = "選擇性別"
+            action1 = actions.MessageAction(text="測試帳號男", label="測試帳號男")
+            action2 = actions.MessageAction(text="測試帳號女", label="測試帳號女")
+            column = template.CarouselColumn(
+                text=replyT, actions=[action1, action2])
+            carouse = template.CarouselTemplate(columns=[column])
+            if token != userId:
+                client.reply_message(
+                    token, [template.TemplateSendMessage(
+                        template=carouse,
+                        alt_text="broke")])
+            return replyT
         else:
             replyT = "歡迎"
             action1 = actions.MessageAction(text="開始使用", label="開始使用")
             action2 = actions.MessageAction(text="預覽約會", label="預覽約會")
+            action3 = actions.MessageAction(text="快速使用(測試用)", label="快速使用(測試用)")
             column = template.CarouselColumn(
-                text=replyT, actions=[action1, action2])
+                text=replyT, actions=[action1, action2, action3])
             carouse = template.CarouselTemplate(columns=[column])
             if token != userId:
                 client.reply_message(
