@@ -121,6 +121,22 @@ def webhook():
         elif reqsT == "觀看約會" and user.isMale():
             user.readDate(token=token, userId=userId, client=client)
             return
+        else:
+            replyT = "歡迎"
+            action = ""
+            if user.isMale():
+                action= actions.MessageAction(text="觀看約會", label="觀看約會")
+            else:
+                action= actions.MessageAction(text="觀看約會", label="觀看約會")
+            column = template.CarouselColumn(
+                text=replyT, actions=[action])
+            carouse = template.CarouselTemplate(columns=[column])
+            if token != userId:
+                client.reply_message(
+                    token, [template.TemplateSendMessage(
+                        template=carouse,
+                        alt_text="broke")])
+            return replyT
     elif status == 110:
         date = cluster.getDate(userId)
         if reqsT == "觀看邀請名單" and not user.isMale():
