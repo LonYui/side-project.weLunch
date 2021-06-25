@@ -127,7 +127,7 @@ def webhook():
             if user.isMale():
                 action= actions.MessageAction(text="觀看約會", label="觀看約會")
             else:
-                action= actions.MessageAction(text="觀看約會", label="觀看約會")
+                action= actions.MessageAction(text="發起約會", label="發起約會")
             column = template.CarouselColumn(
                 text=replyT, actions=[action])
             carouse = template.CarouselTemplate(columns=[column])
