@@ -142,6 +142,10 @@ class Male(Member):
                      + str(dating.dateDate.isoweekday()) + "有空嗎？",
                 thumbnail_image_url=girl.pictUri, )
             colLis.append(column)
+        if colLis == []:
+            if token != userId:
+                client.reply_message(token, TextSendMessage(text='目前無約會'))
+            return
         carouse = template.CarouselTemplate(columns=colLis)
         if token != userId:
             client.reply_message(
