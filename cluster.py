@@ -77,13 +77,10 @@ class Member(me.Document):
         # 處理 replyMessage sendmesg
         replyT,sendMsg = tup[STAT][1],TextSendMessage(text=tup[STAT][1])
         if STAT == 5:
-            replyT = "您是" + self.birthDate.isoformat() \
-                     + "的" + getConstellation(
-                self.birthDate.month, self.birthDate.day)
-            if self.isMale():
-                replyT += "男孩嗎？"
-            else:
-                replyT += "女孩嗎？"
+            生日 = self.birthDate.isoformat()
+            生肖 = self.getConstellation()
+            listS = ['您是',生日,'的',生肖,'男孩嗎？'] if self.isMale() else ['您是',生日,'的',生肖,'女孩嗎？']
+            replyT=''.join(listS)
 
             action1 = actions.MessageAction(text=tup[STAT][2][0], label=tup[STAT][2][0])
             action2 = actions.MessageAction(text=tup[STAT][2][1], label=tup[STAT][2][1])
@@ -92,17 +89,9 @@ class Member(me.Document):
             carouse = template.CarouselTemplate(columns=[column])
             sendMsg = [template.TemplateSendMessage(template=carouse,alt_text="broke")]
         elif STAT == 13:
-            introT = "個性" + self.personality \
-                   + "喜歡" + self.hobit + "的" + \
-                   getConstellation(
-                       self.birthDate.month, self.birthDate.day) + "男孩"
-            if self.isMale():
-                introT += "男孩"
-            else:
-                introT += "女孩"
             action = actions.MessageAction(text=tup[STAT][2][0], label=tup[STAT][2][0])
             column = template.CarouselColumn(
-                title=self.nickName, text=introT,
+                title=self.nickName, text=self.introT(),
                 thumbnail_image_url=self.pictUri, actions=[action])
             carouse = template.CarouselTemplate(columns=[column])
             sendMsg = [TextSendMessage(text=replyT),template.TemplateSendMessage(template=carouse,alt_text="break")]
@@ -110,6 +99,51 @@ class Member(me.Document):
         if token != self.userId:
             client.reply_message(token, sendMsg)
         return replyT
+    
+    def introT(self):
+        introT = f"個性{self.personality}喜歡{self.hobit}的{self.getConstellation()}男生"\
+            if self.isMale() else f"個性{self.personality}喜歡{self.hobit}的{self.getConstellation()}女生"
+        return introT
+
+    def getConstellation(self):
+        """copy from https://loserfer.blogspot.com/2017/07/python_4.html"""
+        dates = (21, 20, 21, 21, 22, 22, 23, 24, 24, 24, 23, 22)
+        constellations = (
+        "摩羯座", "水瓶座", "雙魚座", "牡羊座", "金牛座", "雙子座", "巨蟹座", "獅子座", "處女座",
+        "天秤座", "天蝎座", "射手座", "魔羯座")
+        if self.birthDate.day < dates[self.birthDate.month - 1]:
+            return constellations[self.birthDate.month - 1]
+        else:
+            return constellations[self.birthDate.month]
+
+    def calculate_age(self):
+        """ from stackoverflow 12 讚"""
+        today = DT.today()
+        return str(today.year - self.birthDate.year - (
+                    (today.month, today.day) < (self.birthDate.month, self.birthDate.day)))
+
+    @classmethod
+    def getUser(cls,userId):
+        qMale = Male.objects(userId=userId)
+        qFemale = Female.objects(userId=userId)
+        if qMale:
+            return Male.objects.get(userId=userId)
+        elif qFemale:
+            return Female.objects.get(userId=userId)
+        else:
+            return None
+
+    @classmethod
+    def getDate(cls,userId):
+        qMale = Date.objects(maleId=userId)
+        qFemale = Date.objects(femaleId=userId)
+        if qMale:
+            return Date.objects.get(maleId=userId)
+        elif qFemale:
+            return Date.objects.get(femaleId=userId)
+        else:
+            return None
+
 
 class Male(Member):
     nickName = me.StringField()
@@ -129,17 +163,14 @@ class Male(Member):
         """觀看約會"""
         colLis = []
         for dating in Date.objects(status = 10):
-            girl = getUser(dating.femaleId)
+            girl = Member.getUser(dating.femaleId)
             action = actions.PostbackAction(
                 data=dating.femaleId, label="邀請她",
                 display_text="邀請她")
             column = template.CarouselColumn(
                 actions=[action],
-                title=str(calculate_age(girl.birthDate))
-                      + "," + girl.nickName,
-                text="我在" + dating.workDist + "上班，喜歡"
-                     + dating.eatype + "，拜"
-                     + str(dating.dateDate.isoweekday()) + "有空嗎？",
+                title=f'{girl.calculate_age()},{girl.nickName}',
+                text= f'我在{dating.workDist}上班，喜歡吃{dating.eatype}，禮拜{str(dating.dateDate.isoweekday())}有空嗎？',
                 thumbnail_image_url=girl.pictUri, )
             colLis.append(column)
         if colLis == []:
@@ -178,14 +209,10 @@ class Female(Member):
     def readInvList(self,token,userId,client):
         """觀看邀請名單"""
         colLis = []
-        date = getDate(self.userId)
+        date = Member.getDate(self.userId)
         for invId in date.invList:
-            user = getUser(invId)
-            text = "個性" + user.personality \
-                   + "喜歡" + user.hobit + "的" + \
-                   getConstellation(
-                       user.birthDate.month, user.birthDate.day) \
-                   + "男孩"
+            user = Member.getUser(invId)
+            text = f'個性{user.personality}喜歡{user.hobit}的{user.getConstellation()}男孩'
             action = actions.PostbackAction(data=invId, label="選他",
                                             display_text="選他")
             column = template.CarouselColumn(
@@ -198,31 +225,6 @@ class Female(Member):
                 token, [template.TemplateSendMessage(
                     template=carouse, alt_text="broke")])
         return
-
-
-def getUser(userId):
-    qMale = Male.objects(userId = userId)
-    qFemale = Female.objects(userId = userId)
-    if qMale:
-        return Male.objects.get(userId =userId)
-    elif qFemale:
-        return Female.objects.get(userId =userId)
-    else :
-        return None
-
-def getConstellation(month, date):
-    """copy from https://loserfer.blogspot.com/2017/07/python_4.html"""
-    dates = (21, 20, 21, 21, 22, 22, 23, 24, 24, 24, 23, 22)
-    constellations = ("摩羯座", "水瓶座", "雙魚座", "牡羊座", "金牛座", "雙子座", "巨蟹座", "獅子座", "處女座", "天秤座", "天蝎座", "射手座", "魔羯座")
-    if date < dates[month-1]:
-        return constellations[month-1]
-    else:
-        return constellations[month]
-
-def calculate_age(born):
-    """ from stackoverflow 12 讚"""
-    today = DT.today()
-    return today.year - born.year - ((today.month, today.day) < (born.month, born.day))
 
 class Date(me.Document):
     workDist = me.StringField()
@@ -256,7 +258,7 @@ class Date(me.Document):
                 reqsT = DT.today() + timedelta(days=2)
             elif reqsT == "大後天":
                 reqsT = DT.today() + timedelta(days=3)
-        elif STAT in (10,11) and getUser(reqsT) is None:
+        elif STAT in (10,11) and Member.getUser(reqsT) is None:
             reqsT = None
         elif STAT ==30:
             reqsT = None
@@ -283,14 +285,14 @@ class Date(me.Document):
         STAT = self.status
         if STAT in (1,2,3,4):self.status += 1
         elif STAT == 5:self.status = 10
-        elif STAT == 10 and getUser(reqsT) is not None:self.status += 1
-        elif STAT == 11 and  getUser(reqsT) is not None:self.status = 20
+        elif STAT == 10 and Member.getUser(reqsT) is not None:self.status += 1
+        elif STAT == 11 and Member.getUser(reqsT) is not None:self.status = 20
         elif STAT == 20 and reqsT == "討論好餐廳和時間了":self.status += 1
         elif STAT == 21:self.status = 30
         elif STAT == 40 and reqsT == "我出發了":
             self.status = 50
-            boy = getUser(self.maleId)
-            girl = getUser(self.femaleId)
+            boy = Member.getUser(self.maleId)
+            girl = Member.getUser(self.femaleId)
             boy.status = 100
             girl.status = 100
             boy.save()
@@ -334,9 +336,9 @@ class Date(me.Document):
             if token != userId: client.reply_message(token, [
                 template.TemplateSendMessage(template=carouse,
                                              alt_text="broke")])
-        elif STAT in (10,) and getUser(reqsT) is None:
+        elif STAT in (10,) and Member.getUser(reqsT) is None:
             replytext = "無人邀請"
-        elif STAT in (11,) and getUser(reqsT) is None:
+        elif STAT in (11,) and Member.getUser(reqsT) is None:
             replytext = "有人邀約了"
             action = actions.MessageAction(text="觀看邀請名單",
                                            label="觀看邀請名單")
@@ -379,7 +381,7 @@ class Date(me.Document):
                 to = self.maleId
                 prefix = "👩:"
             if token != userId: client.push_message(to, TextSendMessage(
-                text=prefix + "定好約會囉，約會那天再聊吧"))
+                text= f"{prefix}定好約會囉，約會那天再聊吧"))
             if token != userId: client.reply_message(token,
                                                      TextSendMessage(
                                                          text=replytext))

@@ -17,7 +17,7 @@ def webhook():
     if eventType not in ["postback", "message"]:
         return
     userId: Final = rJson[0]["source"]["userId"]
-    user = cluster.getUser(userId)
+    user = cluster.Member.getUser(userId)
     token: Final = rJson[0]["replyToken"]
     replyT = ""
     if eventType == "postback":
@@ -26,7 +26,7 @@ def webhook():
             reqsT: Final = rJson[0]["postback"]["data"]
             user.status += 10
             user.save()
-            date = cluster.getDate(reqsT)
+            date = cluster.Member.getDate(reqsT)
             date.assignValue(
                 reqsT=userId, userId=userId,
                 token=token, client=client)
@@ -36,7 +36,7 @@ def webhook():
             date.statusChange(reqsT=userId)
         elif status == 110:
             reqsT: Final = rJson[0]["postback"]["data"]
-            date = cluster.getDate(userId)
+            date = cluster.Member.getDate(userId)
             date.assignValue(
                 reqsT=reqsT, userId=userId,
                 token=token, client=client)
@@ -69,11 +69,7 @@ def webhook():
             for girl in cluster.Female.objects(status__gte=15):
                 column = template.CarouselColumn(
                     title=girl.nickName,
-                    text="個性" + girl.personality
-                         + "喜歡" + girl.hobit + "的"
-                         + cluster.getConstellation(
-                            girl.birthDate.month,
-                            girl.birthDate.day) + "女孩",
+                    text=girl.introT(),
                     thumbnail_image_url=girl.pictUri,
                     actions=[action])
                 if len(columnL) == 10:
@@ -138,7 +134,7 @@ def webhook():
                         alt_text="broke")])
             return replyT
     elif status == 110:
-        date = cluster.getDate(userId)
+        date = cluster.Member.getDate(userId)
         if reqsT == "觀看邀請名單" and not user.isMale():
             user.readInvList(token=token, userId=userId, client=client)
             return ""
