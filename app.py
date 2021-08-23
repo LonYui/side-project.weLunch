@@ -117,6 +117,21 @@ def webhook():
         elif reqsT == "觀看約會" and user.isMale():
             user.readDate(token=token, userId=userId, client=client)
             return
+        elif reqsT == "我的交友名片" :
+            replyT = "我的交友名片"
+            action = actions.MessageAction(text='好',
+                                           label='好')
+            column = template.CarouselColumn(
+                title=user.nickName, text=user.introT(),
+                thumbnail_image_url=user.pictUri, actions=[action])
+            carouse = template.CarouselTemplate(columns=[column])
+            sendMsg = [TextSendMessage(text=replyT),
+                       template.TemplateSendMessage(template=carouse,
+                                                    alt_text="break")]
+            if token != userId:
+                client.reply_message(
+                    token,sendMsg)
+            return
         else:
             replyT = "歡迎"
             action = ""
@@ -124,8 +139,9 @@ def webhook():
                 action= actions.MessageAction(text="觀看約會", label="觀看約會")
             else:
                 action= actions.MessageAction(text="發起約會", label="發起約會")
+            action2 = actions.MessageAction(text="我的交友名片", label="我的交友名片")
             column = template.CarouselColumn(
-                text=replyT, actions=[action])
+                text=replyT, actions=[action,action2])
             carouse = template.CarouselTemplate(columns=[column])
             if token != userId:
                 client.reply_message(
