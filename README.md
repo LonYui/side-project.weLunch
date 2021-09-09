@@ -10,10 +10,10 @@ A dating service chatbot on Line platform.
 
 # 索引
 
-* [使用技術](#a)
+* [使用技術/practice tech](#a)
 * [bot 介紹](#b)
-  * [特色](#b1)
-  * [功能](#b2)
+  * [特色/Feature](#b1)
+  * [功能/Function](#b2)
   * [使用說明書](#b3)
 
 <h1 id="a">使用技術</h1>
