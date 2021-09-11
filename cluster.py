@@ -8,6 +8,7 @@ connect(host =os.environ['db'] )
 class Member(me.Document):
     meta = {
         'abstract': True,
+        'strict':False,
     }
     def isMale(self):
         if self.__class__.__name__ == "Male":

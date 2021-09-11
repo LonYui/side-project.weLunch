@@ -23,6 +23,7 @@ def webhook():
     if eventType == "postback":
         status = user.status
         if status == 100:
+            """event 男生發出邀約"""
             reqsT: Final = rJson[0]["postback"]["data"]
             user.status += 10
             user.save()
@@ -34,7 +35,11 @@ def webhook():
                 reqsT=userId, userId=userId,
                 token=token, client=client)
             date.statusChange(reqsT=userId)
+            # push message to girl
+            if token != userId: client.push_message(reqsT, TextSendMessage(
+                text='收到邀約囉'))
         elif status == 110:
+            """女生選擇約會對象"""
             reqsT: Final = rJson[0]["postback"]["data"]
             date = cluster.Member.getDate(userId)
             date.assignValue(
@@ -44,6 +49,10 @@ def webhook():
                 reqsT=reqsT, userId=userId,
                 token=token, client=client)
             date.statusChange(reqsT=reqsT)
+            # push message to man
+            if token != userId: client.push_message(reqsT,
+                                                    TextSendMessage(
+                                                        text='配對成功囉，開始聊天'))
         return replyT
 
     # status 1 ~ 2
