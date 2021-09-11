@@ -8,6 +8,7 @@ connect(host ="mongodb+srv://Tsung:d39105648@restaurant.m9bx2.mongodb.net/myFirs
 class Member(me.Document):
     meta = {
         'abstract': True,
+        'strict':False,
     }
     def isMale(self):
         if self.__class__.__name__ == "Male":
