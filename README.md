@@ -63,8 +63,8 @@ https://user-images.githubusercontent.com/9551862/132978460-73640b9c-a34f-44b5-b
 <h2 id="c1">coverage report 9/9</h2>
 
 ```
-Name                                                                               Stmts   Miss  Cover  
-----------------------------------------------------------------------------------------------------------------
-app.py                                                                               120     41    66%  
-cluster.py                                                                           269     49    82%
+Name         Stmts   Miss  Cover  
+----------------------------------------
+app.py       120     41    66%  
+cluster.py   269     49    82%
 ```
