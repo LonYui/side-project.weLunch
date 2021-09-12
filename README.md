@@ -13,14 +13,14 @@ https://user-images.githubusercontent.com/9551862/132978460-73640b9c-a34f-44b5-b
 
 # 索引
 
-* [使用技術/practice tech](#a)
+* [使用技術/Practice tech](#a)
 * [bot 介紹](#b)
   * [特色/Feature](#b1)
   * [功能/Function](#b2)
   * [使用說明書](#b3)
 * [coverage report](#c1)
 
-<h1 id="a">使用技術/practice tech</h1>
+<h1 id="a">使用技術/Practice tech</h1>
 
 - TDD - Write acceptance test before start dev.
 - Git
@@ -34,26 +34,14 @@ https://user-images.githubusercontent.com/9551862/132978460-73640b9c-a34f-44b5-b
 
 信義區、內科上班族，用午休時間來交朋友
 
-<h2 id="b1">特色</h2>
+<h2 id="b1">特色/Feature</h2>
 
-1. 直接約見面
-2. 使用零碎時間
-3. 以吃會友
-4. 一次只能約一個
-5. 商業午餐實惠
-
-Feature
 - Easy hangout
 - Use workday lunchtime to social
 - Normal day restaurant has discount
 
-<h2 id="b2">功能</h2>
+<h2 id="b2">功能/Function</h2>
 
-1. 即時聊天
-2. 觀看交友名片
-3. 配對
-
-Function
 - chatroom
 - Tinder-like info card
 - match
