@@ -2,27 +2,29 @@
 
 參考 Let's movie，午餐約會 bot 做為後端展示作品,  練習 Tdd 順便學 flask。
 
+#Description
+
+A dating service chatbot on Line platform.
+
+
+
 # 索引
 
-* [使用技術](#a)
+* [使用技術/practice tech](#a)
 * [bot 介紹](#b)
-  * [特色](#b1)
-  * [功能](#b2)
+  * [特色/Feature](#b1)
+  * [功能/Function](#b2)
   * [使用說明書](#b3)
 
-<h1 id="a">使用技術</h1>
+<h1 id="a">使用技術/practice tech</h1>
 
-- TDD - 寫[驗收測試](https://github.com/d5269357812/weLunch/commit/2482590ba4906598c14bf41a31fa077d7d247dff)，再[開發程式](https://github.com/d5269357812/weLunch/commit/648945a3dba1249a76174e904bc170e6276c3e49)
-- git 
-  - write commit message with type,title and body ,see [logs](https://github.com/d5269357812/weLunch/commits/master)
-  - use issue track probleam
-- flask - use mongoengine do orm ,物件導向程式設計
-- 3方 api 串接
-  - line
-  - heroku
-- 規格撰寫 - 索引頁、多用圖片、形容問題而非解答。[規格書 pdf](https://www.docdroid.net/oHmDYOU/seim-welunchbot-270421-1432-pdf#page=1)
-- 壓力測試 - 常用 api 使用 locust 測試（TODO）
-- style - use splint check pep8
+- TDD - write acceptance test accroding to spec before start dev
+- git
+  - write commit message with type,title and body. answering what, why, how 
+  - use github issue track probleam
+- using 3-rd api and package - flask, line Message, mongoengine, heroku
+- documentation - use index, graph, perpose the question ration than answer it 
+
 
 <h1 id="b">bot 介紹</h1>
 
@@ -36,11 +38,21 @@
 4. 一次只能約一個
 5. 商業午餐實惠
 
+Feature
+- easy hangout
+- use Fragmentary time (workday lunch)
+- normal day restaurant has discount
+
 <h2 id="b2">功能</h2>
 
 1. 即時聊天
 2. 觀看交友名片
 3. 配對
+
+Function
+- chatroom
+- porson info card
+- match
 
 <h2 id="b3">使用說明書</h2>
 
