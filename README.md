@@ -1,10 +1,13 @@
-# 摘要
+# 摘要 Description
 
 參考 Let's movie，午餐約會 bot 做為後端展示作品,  練習 Tdd 順便學 flask。
 
-#Description
-
 A dating service chatbot on Line platform.
+
+# Demo
+
+
+https://user-images.githubusercontent.com/9551862/132978460-73640b9c-a34f-44b5-bfcc-b79361251fbc.mov
 
 
 
@@ -15,15 +18,16 @@ A dating service chatbot on Line platform.
   * [特色/Feature](#b1)
   * [功能/Function](#b2)
   * [使用說明書](#b3)
+* [coverage report](#c1)
 
 <h1 id="a">使用技術/practice tech</h1>
 
-- TDD - write acceptance test accroding to spec before start dev
-- git
-  - write commit message with type,title and body. answering what, why, how 
-  - use github issue track probleam
-- using 3-rd api and package - flask, line Message, mongoengine, heroku
-- documentation - use index, graph, perpose the question ration than answer it 
+- TDD - Write acceptance test before start dev.
+- Git
+  - Write commit message with type, title and body. Answering what, why, how .
+  - Use github issue track probleam.
+- 3-rd api & Package - Flask, Line Message, Mongoengine, Heroku
+- Doc - Using more index, graph. Describe the probleam rather than answer it.
 
 
 <h1 id="b">bot 介紹</h1>
@@ -39,9 +43,9 @@ A dating service chatbot on Line platform.
 5. 商業午餐實惠
 
 Feature
-- easy hangout
-- use Fragmentary time (workday lunch)
-- normal day restaurant has discount
+- Easy hangout
+- Use workday lunchtime to social
+- Normal day restaurant has discount
 
 <h2 id="b2">功能</h2>
 
@@ -51,7 +55,7 @@ Feature
 
 Function
 - chatroom
-- porson info card
+- Tinder-like info card
 - match
 
 <h2 id="b3">使用說明書</h2>
@@ -68,11 +72,11 @@ Function
 第一次 call 要等 10 秒（因為：server 使用 heroku 免費專案）
 
 # 其他詳情請看規格書.pdf
+<h2 id="c1">coverage report 9/9</h2>
 
-# coverage report 9/9
-
+```
 Name                                                                               Stmts   Miss  Cover  
-
 ----------------------------------------------------------------------------------------------------------------
 app.py                                                                               120     41    66%  
 cluster.py                                                                           269     49    82%
+```
